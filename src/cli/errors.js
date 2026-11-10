@@ -30,6 +30,8 @@ export const CLI_ERROR = Object.freeze({
   // T-020：数据主体权利的两种拒绝理由。
   CONFIRM: 'ERR_CLI_CONFIRM',
   RESIDUE: 'ERR_CLI_RESIDUE',
+  // T-031：语言包键集不一致（SC-011）。
+  LOCALES: 'ERR_CLI_LOCALES',
 });
 
 /**

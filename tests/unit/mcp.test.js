@@ -120,11 +120,13 @@ test('T-030 · 命令名固定且 P1 命令集快照不被 P2 改写（FR-029 / 
   assert.equal(MCP_COMMAND, 'serve-mcp');
   assert.deepEqual([...COMMANDS].sort(),
     ['acceptance', 'delete-data', 'export-data', 'init', 'ledger', 'plan', 'validate']);
-  assert.deepEqual([...P2_COMMANDS], ['serve-mcp']);
-  assert.deepEqual([...ALL_COMMANDS], [...COMMANDS, 'serve-mcp']);
+  // T-031 口径更新：locales 已由 P2 注册；feedback 仍越界。P1 快照 COMMANDS 不变。
+  assert.deepEqual([...P2_COMMANDS], ['serve-mcp', 'locales']);
+  assert.deepEqual([...ALL_COMMANDS], [...COMMANDS, 'serve-mcp', 'locales']);
   assert.ok(Object.isFrozen(ALL_COMMANDS));
   assert.deepEqual(parseArgs(['serve-mcp']).options, {});
-  for (const outOfScope of ['locales', 'feedback']) {
+  assert.deepEqual(parseArgs(['locales', '--verify']).options, { verify: true });
+  for (const outOfScope of ['feedback']) {
     assert.throws(() => parseArgs([outOfScope]), /ERR_CLI_COMMAND/, `${outOfScope} 仍不得越界`);
   }
 });

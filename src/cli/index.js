@@ -31,4 +31,5 @@ export {
 export { runExportData } from './export-data.js';
 export { runDeleteData } from './delete-data.js';
 export { runServeMcp } from './serve-mcp.js';
+export { runLocales } from './locales.js';
 export { EXIT, runCli } from './run.js';

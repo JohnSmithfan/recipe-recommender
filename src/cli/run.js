@@ -21,6 +21,7 @@ import { runAcceptance } from './acceptance.js';
 import { runExportData } from './export-data.js';
 import { runDeleteData } from './delete-data.js';
 import { runServeMcp } from './serve-mcp.js';
+import { runLocales } from './locales.js';
 import { errorCode, issueLines, line } from './shared.js';
 
 /** 退出码。 */
@@ -36,6 +37,8 @@ const HANDLERS = Object.freeze({
   'delete-data': runDeleteData,
   // T-030：stdio 命令；协议帧直接写入注入的 mcpOutput，返回零条 key=value 行。
   'serve-mcp': runServeMcp,
+  // T-031：语言标签列表 / 键集一致性校验。
+  locales: runLocales,
 });
 
 /** @param {any} error */

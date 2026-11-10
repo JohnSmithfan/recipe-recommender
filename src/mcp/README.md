@@ -75,3 +75,11 @@
 - `AC-14` 仍是 P0 登记的 **RED** 基线；本任务不把任何 `ac-*.md` 改为 GREEN，不改 `tasks.md` 勾选项，不改 P1 门禁 `verdict=BLOCKED`。
 - `plan.md §6.3` 的「输出计划 Markdown」由注入端口提供；MCP 层只负责脱敏与传输，不生成营养内容。
 - 未改 `ci.yml`（P0 已跟踪基线，且 TOKENS 是 T-021 动态提取的唯一权威规则）；CI 接入留 T-042。
+
+---
+
+## 7. T-031 口径订正（本任务未改代码）
+
+- §5 中「`locales` / `feedback` 仍是越界命令」是 T-030 时点的历史事实；T-031 已把 `locales` 注册进 `P2_COMMANDS`，**`feedback` 仍越界**。`COMMANDS` 的七条 P1 快照一字未改。
+- §3 中 `rr_list_locales` 的「不预置语言标签列表」**仍然成立**：默认无 `mcpPorts.listLocales` 时仍返回 `ERR_MCP_PORT`，`src/mcp/` 与 `src/cli/serve-mcp.js` 一行未改。T-031 只在 `src/io/language-pack.js` 提供可选端口 `createListLocalesPort()`，由宿主**显式注入**后才返回七个标签（可执行取证见 `tests/unit/locales.test.js`）。
+- 因此 T-030 的「端口注入、零兜底」与输出契约例外均未被改写。

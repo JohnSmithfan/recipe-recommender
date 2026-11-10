@@ -7,8 +7,8 @@
  * - 重复选项拒绝，避免「后者覆盖前者」的隐性歧义；
  * - 值不得含控制字符 / 竖线 / 反引号 / 绝对路径，保证输出 `key=value` 与台账可 diff（FR-028）。
  *
- * 越界命令（`locales` / `feedback`）不在本任务命令集内，分别归 T-031 / M2 细化。
- * T-030 的 `serve-mcp` 由下方 `P2_COMMANDS` 追加，不改写 P1 取证快照。
+ * 越界命令 `feedback` 归 M2 细化；`serve-mcp` / `locales` 分别由 T-030 / T-031
+ * 经下方 `P2_COMMANDS` 追加，不改写 P1 取证快照。
  */
 import { PLAN_LEVELS } from '../core/planner/index.js';
 import { CLI_ERROR, CliError, cliIssue } from './errors.js';
@@ -27,13 +27,13 @@ export const COMMANDS = Object.freeze([
 ]);
 
 /** P2 追加的命令注册表（T-030）。新增阶段命令只改这里与 `ALL_COMMANDS`。 */
-export const P2_COMMANDS = Object.freeze(['serve-mcp']);
+export const P2_COMMANDS = Object.freeze(['serve-mcp', 'locales']);
 
 /** `parseArgs` 的唯一解析白名单 = P1 快照 ∪ P2 注册表。 */
 export const ALL_COMMANDS = Object.freeze([...COMMANDS, ...P2_COMMANDS]);
 
 /** 布尔开关（不带值）。`confirm` 只属于 `delete-data`，不会泄漏给其它命令。 */
-export const FLAG_KEYS = Object.freeze(['strict', 'red-check', 'confirm']);
+export const FLAG_KEYS = Object.freeze(['strict', 'red-check', 'confirm', 'verify']);
 
 /** 分析类命令共用的开关（`confirm` 不在此列：只对删除有意义）。 */
 const ANALYSIS_FLAGS = Object.freeze(['strict', 'red-check']);
@@ -49,6 +49,8 @@ export const COMMAND_OPTIONS = Object.freeze({
   'delete-data': Object.freeze(['confirm']),
   // T-030：stdio 命令不接受任何 CLI 参数，参数全部走 MCP 帧。
   'serve-mcp': Object.freeze([]),
+  // T-031：键集校验开关，不加 --verify 时只列出内置语言标签。
+  locales: Object.freeze(['verify']),
 });
 
 /** 需要作为工作区相对路径校验的选项。 */

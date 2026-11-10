@@ -144,3 +144,16 @@
 - **输出契约唯一例外**：MCP 帧直接写注入流，处理器返回零条 `key=value` 行、`status=` 收尾对该命令不适用，否则会污染 stdio 帧流。此例外由 `tests/unit/mcp.test.js` 固定断言。
 - 原生异常文本在桥接层折叠为稳定码，不回传客户端（FR-048）。
 - 本追加**不改任何 P0 基线、不改 `ac-*.md` 状态、不改 `tasks.md` 勾选项，也不把 P1 门禁 `BLOCKED` 改写为通过**。
+
+---
+
+## 9. T-031 追加定案（`rr locales`）
+
+> 本节由 T-031 追加；上文 §8 是 T-030 定案，`locales` 当时确属越界，保留不改作为历史取证。
+
+- **§8 口径订正**：`locales` 现已由 T-031 注册进 `P2_COMMANDS`，不再是越界命令；`feedback` 仍越界。`P2_COMMANDS = ['serve-mcp', 'locales']`，`ALL_COMMANDS` 共 9 条；`COMMANDS` 的七条 P1 快照仍一字未改。
+- `FLAG_KEYS` 追加 `verify`（只属 `locales`，不泄漏给其它命令）；`COMMAND_OPTIONS.locales = ['verify']`。
+- `src/cli/locales.js`：`rr locales` 列七个标签；`rr locales --verify` 校验七包键集 100% 一致，漂移即 `ERR_CLI_LOCALES` / exit 2；缺 `fsPort` 即 `ERR_CLI_PORT` / exit 3。
+- `src/io/language-pack.js` 的 `createLanguagePackLoader(fsPort)` 就是 §4 表中登记归 **T-031** 的 `loadLanguagePack` 端口实现，可直接注入 `runCli(['plan'], deps)`；本目录仍零 `node:` 导入。
+- `cli.test.js` / `privacy.test.js` 的 P1 判定未改写未放宽；`mcp.test.js` 中 T-030 的三条命令集断言按新口径更新（`COMMANDS` 与 `feedback` 判定不变）。
+- 本追加同样不改任何 P0 基线 / `ac-*.md` / `tasks.md` 勾选项，不把 P1 门禁 `BLOCKED` 改写为通过。
