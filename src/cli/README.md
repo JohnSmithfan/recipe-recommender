@@ -157,3 +157,24 @@
 - `src/io/language-pack.js` 的 `createLanguagePackLoader(fsPort)` 就是 §4 表中登记归 **T-031** 的 `loadLanguagePack` 端口实现，可直接注入 `runCli(['plan'], deps)`；本目录仍零 `node:` 导入。
 - `cli.test.js` / `privacy.test.js` 的 P1 判定未改写未放宽；`mcp.test.js` 中 T-030 的三条命令集断言按新口径更新（`COMMANDS` 与 `feedback` 判定不变）。
 - 本追加同样不改任何 P0 基线 / `ac-*.md` / `tasks.md` 勾选项，不把 P1 门禁 `BLOCKED` 改写为通过。
+
+---
+
+## 10. T-032 口径订正（`resolveLocalePolicy` 端口实现已提供）
+
+> 本节由 T-032 追加；本任务**未修改 `src/cli/` 任何一行代码**，只登记端口来源与剩余接线缺口。
+
+- §4 端口表中登记归 **T-032** 的 `resolveLocalePolicy`，现由
+  `src/core/locale/policy.js` 的 `createLocalePolicyResolver({ regionMappings })` 提供，
+  返回 `(profile, overrides) => policy`，可直接注入 `runCli(['plan'], deps).resolveLocalePolicy`。
+  返回对象严格是 `assertPolicy` 要求的固定五键
+  `language_tag / guideline_id / calendar_id / unit_system / locale_source`。
+- **零兜底定案不变**：`rr plan` 默认 `deps` 仍不含该端口，缺端口即 `ERR_CLI_PORT` / exit 3；
+  T-032 不自动装配、不内置任何真实区域映射（`data/region/` 归 T-033）。
+- `OVERRIDE_KEYS`（`lang/guideline/calendar/country`）与 `COMMANDS` 七条 P1 快照**一字未改**。
+  核心域虽支持 `units` 显式覆盖（FR-046），CLI 尚未暴露该键，接线缺口登记在
+  `src/core/locale/README.md §7.5`，不擅自扩 P1 配置键集。
+- 来源枚举仍为 `user / auto:nationality / auto:residence / auto:fallback`，
+  与 `plan.js` / `validate.js` / `core/planner/plan.js` 逐字一致，拒绝静默推断。
+- 本追加不改任何 P0 基线 / `ac-*.md` / `tasks.md` 勾选项，不把 P1 门禁 `BLOCKED` 改写为通过；
+  `AC-16` 仍 RED（联网交节下载与真实区域映射分别待 T-014/T-042 与 T-033）。
