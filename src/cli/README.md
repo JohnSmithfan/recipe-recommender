@@ -178,3 +178,21 @@
   与 `plan.js` / `validate.js` / `core/planner/plan.js` 逐字一致，拒绝静默推断。
 - 本追加不改任何 P0 基线 / `ac-*.md` / `tasks.md` 勾选项，不把 P1 门禁 `BLOCKED` 改写为通过；
   `AC-16` 仍 RED（联网交节下载与真实区域映射分别待 T-014/T-042 与 T-033）。
+
+---
+
+## 11. T-033 口径订正（示例区域映射表已提供，仍未自动接线）
+
+> 本节由 T-033 追加；本任务**未修改 `src/cli/` 任何一行实现代码**。
+
+- §10 中「真实区域映射待 T-033」现已落地：`data/region/{mappings,schema}.json` +
+  `src/core/guideline/region.js` 提供 `loadRegionMappings(fsPort)` 与
+  `createLocalePolicyResolverFromFs(fsPort)`，后者可直接产出 §4 表中的
+  `resolveLocalePolicy` 端口。**仍须宿主显式注入 `deps`**，
+  `rr plan` 默认缺端口即 `ERR_CLI_PORT`（零兜底定案不变）。
+- 映射表是**最小示例集**（`CN` / `US` + 中国地区级 `HK` / `MO` / `TW`），
+  系数自撰中立、`review_status=ai-candidate-unreviewed`，**不是**真实指南适用性判定；
+  未登记区域一律回退中立通用基线。
+- `OVERRIDE_KEYS` 仍是 `lang/guideline/calendar/country`，`units` 的核心域能力与
+  CLI 接线缺口不变；`ci.yml` 门禁接入留 T-042。
+- 本追加不改任何 P0 基线 / `ac-*.md` / `tasks.md` 勾选项，不把 P1 门禁 `BLOCKED` 改写为通过。

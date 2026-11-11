@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "mapping_file": "mappings.json",
+  "source": "synthetic-neutral-example",
+  "review_status": "ai-candidate-unreviewed",
+  "notice_key": "region.mapping.example_only",
+  "baseline": {
+    "language_tag": "en",
+    "guideline_id": "generic-guideline",
+    "calendar_id": "gregorian-season",
+    "unit_system": "metric"
+  },
+  "calendar_contract": {
+    "yearly_refresh": true,
+    "lower_layers_read_only": true,
+    "fallback_label": "FALLBACK / 未校验",
+    "approximate_table_forbidden": true,
+    "min_independent_sources": 2
+  },
+  "subnational_codes": ["HK", "MO", "TW"],
+  "coverage": "minimal-example",
+  "codes": ["CN", "HK", "MO", "TW", "US"]
+}

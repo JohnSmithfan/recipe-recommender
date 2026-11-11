@@ -123,6 +123,8 @@ T-031 只产出语言包数据与回退链能力。AC-15 的端到端断言还�
 **不内置任何真实区域映射**（`data/region/` 属 T-033）、不读取文件、不联网、不调用在线翻译 / LLM、
 不生成计划正文、不计算营养数值、不自动接线 `rr plan`（T-019 零兜底定案不变）。
 映射表只经 `options.regionMappings` 由宿主**显式注入**；缺省为空表，即所有区域都「未匹配」。
+> **T-033 补充**：数据现由 `data/region/` 提供，加载与语义校验在
+> `src/core/guideline/region.js`；本目录仍然**不内置**映射数据，注入契约未变。
 
 ### 7.2 优先级与来源
 
@@ -177,8 +179,12 @@ calendar_id:'gregorian-season', unit_system:'metric' }`，与两份虚构 fixtur
 
 1. **AC-16 仍 RED**：场景 1 还要求「联网下载精确交节时刻」，属 T-014 net 端口与
    T-042 CI 接线；T-032 只提供策略解析层取证（合成映射，不含任何真实区域数据）。
-2. **真实区域映射表未落**（T-033）：本任务的 `regionMappings` 全部由调用方注入，
-   仓库内 `data/region/` 仍不存在；不得把合成映射解读为区域数据已验收。
+2. **口径订正（T-033，2026-11-10）**：原文写「真实区域映射表未落、`data/region/` 仍不存在」，
+   描述的是 **T-032 时点**。T-033 已落 `data/region/{mappings,schema}.json` 与
+   `src/core/guideline/region.js`，可由 `createLocalePolicyResolverFromFs(fsPort)`
+   注入本层的 `createLocalePolicyResolver()`。但该表是**最小示例集 + AI 候选稿**
+   （`CN` / `US` + `HK` / `MO` / `TW`，适配器系数自撰中立、待人工审校），
+   **不是**真实指南适用性判定；`rr plan` 默认 deps 仍不自动装配（零兜底不变）。
 3. **「未匹配，已回退」的自然语言标注**尚缺落点：T-018 的 71 个 Canonical ID
    键集已冻结，新增语言包键会破坏 SC-011 键集一致性，须先走规格变更；
    当前以 `locale_source=auto:fallback` 稳定码 + `fallback_reason` Canonical ID 表达，

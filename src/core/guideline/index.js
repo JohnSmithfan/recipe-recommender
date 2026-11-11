@@ -10,3 +10,15 @@ export {
   validateGuidelineAdapter,
 } from './contract.js';
 export { loadGuidelineAdapter } from './loader.js';
+export {
+  REGION_ROOT,
+  MAPPINGS_PATH,
+  SCHEMA_PATH,
+  REGION_ERROR,
+  UNIT_SYSTEMS,
+  CALENDAR_CONTRACT,
+  SCHEMA_KEYS,
+  RegionError,
+  loadRegionMappings,
+  createLocalePolicyResolverFromFs,
+} from './region.js';
