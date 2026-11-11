@@ -196,3 +196,22 @@
 - `OVERRIDE_KEYS` 仍是 `lang/guideline/calendar/country`，`units` 的核心域能力与
   CLI 接线缺口不变；`ci.yml` 门禁接入留 T-042。
 - 本追加不改任何 P0 基线 / `ac-*.md` / `tasks.md` 勾选项，不把 P1 门禁 `BLOCKED` 改写为通过。
+
+---
+
+## 12. T-034 口径订正（可选增强开关未接入 CLI）
+
+> 本节由 T-034 追加；本任务**未修改 `src/cli/` 任何一行实现代码**。
+
+- `src/core/render/enhance.js` 提供 `parseEnhanceConfig()` / `resolveEnhanceDecision()` /
+  `enhanceRenderedText()` / `createEnhanceGate()`：**默认关闭**、启用需**逐次显式同意并明确范围**、
+  不可用 / 断网**自动降级为规则 / 模板引擎**（FR-051 / AC-17 / E-16）。
+- 配置开关是**核心域纯数据契约**，不是 CLI 参数：`COMMAND_OPTIONS` / `FLAG_KEYS` /
+  `OVERRIDE_KEYS` 均未新增键，`runCli` 默认 deps 不含增强端口，也不读取任何
+  `rr.enhance.json`。与 §10 / §11 一致，**仍须宿主显式注入**（零兜底定案不变）。
+- 本仓库**运行期不调用在线翻译或远端服务**：适配器契约是同步本地纯函数，
+  异步 / 远端结果一律被拒并降级；T-021 `scanSources()` 对 `src/core` + `src/cli`
+  零外部出口的取证口径不变。
+- `render()` 三参签名与输出字节未变；`AC-17` 仍 **RED**，合规文档归 T-041、
+  CI 门禁接线归 T-042。本追加不改任何 P0 基线 / `ac-*.md` / `tasks.md` 勾选项，
+  不把 P1 门禁 `BLOCKED` 改写为通过。

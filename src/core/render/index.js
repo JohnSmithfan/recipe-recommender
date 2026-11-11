@@ -24,3 +24,19 @@ export {
   extractRenderData,
 } from './data.js';
 export { render } from './render.js';
+/** T-034 optional enhancement gate: default OFF, explicit consent, offline fallback. */
+export {
+  ENHANCE_ERROR,
+  ENHANCEMENT_SCOPES,
+  ENHANCE_CONFIG_KEYS,
+  DEFAULT_ENHANCE_CONFIG,
+  ENHANCE_DECISION,
+  ENHANCE_STEP,
+  ENHANCE_ENGINE,
+  parseEnhanceConfig,
+  assertEnhanceConsent,
+  resolveEnhanceDecision,
+  applyEnhancement,
+  enhanceRenderedText,
+  createEnhanceGate,
+} from './enhance.js';

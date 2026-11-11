@@ -62,3 +62,60 @@ T-018 只产出**渲染能力**。AC-12 需要 T-019 / T-020 / T-021 的断网�
 - 独立负向探针 `reviews/t018-negative.mjs` **56/56 全检出**、全部字节级还原；Round 10 双代理复审 P0 PASS 11/0/0、P1 PASS 31/0/1（唯一 WARN 为已裁决留 T-040 的 `.gitkeep`）。
 - `npm run acceptance` **19/19 RED · 0 GREEN**；`npm run spec-check` PASS；已跟踪 diff 与暂存均为空；`tasks.md` 仍 0 `[x]` / 39 `[ ]`。
 - 负向探针与双独立代理复审见仓库外 `reviews/round-10/`，本 README 不重复其结论。
+
+---
+
+## 8. T-034 · 可选增强适配点与离线降级（2026-11-11）
+
+> 依据：`tasks.md` T-034；`SPEC.md` FR-041 补注、FR-047～051、AC-17、E-16、SC-013、
+> NFR-001 / NFR-009、P-11 / P-13；`plan.md §9`；`constitution.md` P-13。
+> 本节由 T-034 追加；`render()` 的三参签名与输出字节**一行未改**。
+
+### 8.1 范围
+
+| 文件 | 职责 |
+|------|------|
+| `enhance.js` | 纯决策层：配置开关、逐次同意门、可用性判定、适配点、失败降级与输出不变量护栏 |
+| `index.js` | 统一出口追加导出（T-018 既有导出不变） |
+| `tests/unit/enhance.test.js` | 24 条红→绿单测 |
+| `reports/t034-enhance.md` | 任务报告 |
+
+**未改**：`render.js` / `contract.js` / `data.js` / `errors.js`、`src/cli/`、`src/mcp/` 实现代码、
+`COMMANDS` / `P2_COMMANDS` / `COMMAND_OPTIONS` / `FLAG_KEYS` / `OVERRIDE_KEYS`。
+
+### 8.2 关键定案
+
+1. **默认关闭**：`DEFAULT_ENHANCE_CONFIG = { enabled: false, scope: null }`；
+   `enhanceRenderedText(text)` 空选项 → 零适配器调用、模板输出**逐字节相同**（AC-17 场景 1）。
+2. **逐次显式同意**：同意对象固定四键 `{ granted, scope, consent_id, request_id }`；
+   `granted === true`；`scope` 必须与配置声明的范围**逐字一致**且在
+   `ENHANCEMENT_SCOPES`（菜名润色 / 解释文本）白名单内；`consent_id` 一次性——
+   `createEnhanceGate()` 记录已消费 ID，复用即降级并留 `enhance.decision.reuse`。
+   **无 IP / 定位 / 环境变量 / 静默推断**（FR-045 / FR-048 同源口径）。
+3. **可用性由宿主显式给出**：`availability = { available, offline }` 是纯数据，
+   核心域不调用任何探测方法、不 `import node:*`；`offline` 或 `!available`
+   一律降级（E-16）。形状非法则失败关闭（`ERR_ENHANCE_PORT`）。
+4. **失败即降级**：适配器缺失 / 非函数 / 抛错 / 返回异步值 / 返回非法字符串 →
+   返回**未改动的模板正文**并记录 `fallback_reason` 稳定码；核心计划照常产出（FR-051）。
+5. **输出不变量护栏**：增强结果 MUST 保留 `rr-data` 规范数据区**逐字节不变**、
+   `<!-- rr-render` 头行与 `[AIGC]` 标记，且不得引入控制字符或私有字段 token；
+   任一违反即拒绝增强并降级（FR-044 / FR-047 / FR-033）。
+6. **运行期零在线调用**：本仓库**不内置任何远端适配器**；适配器契约是**同步本地纯函数**，
+   Promise / 远端结果一律被拒并降级。源码纯 ASCII、零 `node:` 导入、零网络出口、
+   零在线翻译入口（可被 T-021 `scanSources()` 直接取证）。若宿主自行注入外部适配器，
+   须自行满足 FR-048 的逐次同意与范围告知，且不得由默认路径触发。
+7. **配置开关**：`ENHANCE_CONFIG_KEYS = ['enabled', 'scope']` + `parseEnhanceConfig(text)`；
+   固定键集、未知键拒绝、类型失败关闭、默认关闭。**未接入 `rr plan`**：`runCli` 默认
+   deps 不含增强端口，CLI 不读取任何 `rr.enhance.json`；与 T-032 / T-033 的
+   「端口工厂只供显式注入」一致，**零兜底定案不变**。
+8. **可追溯**：决策链 `enhance.step.*` 与结论 `enhance.decision.*` 全为 Canonical ID，
+   不含自然语言、身体数值或个人数据（NFR-012）。
+
+### 8.3 边界
+
+- **AC-17 仍 RED**：T-021 已提供「断网 + 增强关闭」的离线集成取证；T-034 只补
+  「增强门 + 自动降级」的策略层可执行断言。合规文档归 T-041、CI 门禁接线归 T-042，
+  本次不改任何 `ac-*.md` 状态、不勾 `tasks.md`、不改写 P1 verdict。
+- 不实现任何 LLM / 在线翻译客户端，不读取真实档案，不新增第三方依赖。
+- 既有遗留不变：`unit_system` 未接 T-018 / T-019 格式化器；`units` CLI 覆盖键仍缺；
+  「未匹配，已回退」自然语言标注仍缺冻结 71 键集之外的语言包键。
