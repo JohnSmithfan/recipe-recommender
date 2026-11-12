@@ -232,3 +232,23 @@
 - `THIRD_PARTY_NOTICES.md` 与社区规范文件归 T-040 / T-041、CI 许可扫描门禁归 T-042；
   `AC-13` / `AC-18` 仍 **RED**。本追加不改任何 P0 基线 / `ac-*.md` / `tasks.md` 勾选项，
   不把 P1 门禁 `BLOCKED` 改写为通过。
+
+---
+
+## 14. T-036 口径订正（多语言快照未接入 CLI）
+
+> 本节由 T-036 追加；本任务**未修改 `src/cli/` 任何一行实现代码**。
+
+- `tests/snapshots/i18n/` 存放七语言 + `xx-Zzzz` 回退共 8 份真实 `render()` 输出快照，
+  配套 `manifest.json` / `glossary.json` / `fixture.mjs` / `generate.mjs`。这是**测试层取证产物**，
+  不是新的 CLI 命令或运行时输出路径（FR-043 / FR-044 / AC-15 / SC-011 / E-12）。
+- 取证采用**同一 plan 对象 + 同一 intlFormatter、只换语言包**的严格 FR-044 口径；
+  `runCli` 默认 deps、`COMMAND_OPTIONS` / `FLAG_KEYS` / `OVERRIDE_KEYS` 一字未改，
+  `COMMANDS` 七条 P1 快照与 `P2_COMMANDS = ['serve-mcp','locales']` 保持不变；
+  `feedback` 仍越界。生成器默认只读 `--check`，运行期不联网、不调用翻译或 LLM。
+- 快照里的四餐克数来自渲染层 `sections` 的**合成夹具**（`sections_source =
+  synthetic-render-fixture`、`product_e2e = unwired`），不代表 T-013 / T-016 端到端接线，
+  **AC-03 与 AC-15 仍 RED**；T-016 零内置食材表、T-019 零兜底定案均不变。
+- 中文汉字 GB 18030-2022 实现级别 1 的独立 CI 静态校验脚本归 T-045 `encoding-check`，
+  CI 门禁接线归 T-042；本追加不改任何 P0 基线 / `ac-*.md` / `tasks.md` 勾选项，
+  不把 P1 门禁 `BLOCKED` 改写为通过。
