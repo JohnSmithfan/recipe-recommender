@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0.0",
+  "catalog_id": "rr-data-source-catalog",
+  "source": "synthetic-neutral-example",
+  "review_status": "ai-candidate-unreviewed",
+  "notice_key": "source.catalog.notice",
+  "sources": [
+    {
+      "id": "howtocook-recipes",
+      "kind": "recipe",
+      "license": "Unlicense",
+      "version": "unverified",
+      "source_url": "https://github.com/Anduin2017/HowToCook",
+      "review_status": "ai-candidate-unreviewed",
+      "bundled": false,
+      "payload_path": null,
+      "notice_key": "source.notice.external"
+    },
+    {
+      "id": "usda-fdc-nutrition",
+      "kind": "nutrition",
+      "license": "CC0-1.0",
+      "version": "unverified",
+      "source_url": "https://fdc.nal.usda.gov",
+      "review_status": "ai-candidate-unreviewed",
+      "bundled": false,
+      "payload_path": null,
+      "notice_key": "source.notice.external"
+    },
+    {
+      "id": "cn-ingredient-subset",
+      "kind": "nutrition",
+      "license": "CC0-1.0",
+      "version": "unverified",
+      "source_url": "https://example.invalid/cn-ingredient-subset",
+      "review_status": "ai-candidate-unreviewed",
+      "bundled": false,
+      "payload_path": null,
+      "notice_key": "source.notice.manual_review"
+    },
+    {
+      "id": "user-defined",
+      "kind": "recipe",
+      "license": "user-owned",
+      "version": "unverified",
+      "source_url": "https://example.invalid/user-defined",
+      "review_status": "ai-candidate-unreviewed",
+      "bundled": false,
+      "payload_path": null,
+      "notice_key": "source.notice.user_defined"
+    },
+    {
+      "id": "synthetic-demo",
+      "kind": "recipe",
+      "license": "synthetic-neutral-example",
+      "version": "1.0.0",
+      "source_url": "https://example.invalid/synthetic-demo",
+      "review_status": "approved",
+      "bundled": true,
+      "payload_path": "data/source/synthetic-demo.json",
+      "notice_key": "source.notice.synthetic"
+    }
+  ]
+}

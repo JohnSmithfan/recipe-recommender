@@ -1,0 +1,34 @@
+{
+  "id": "synthetic-demo",
+  "kind": "recipe",
+  "license": "synthetic-neutral-example",
+  "version": "1.0.0",
+  "fictional": true,
+  "notice_key": "source.notice.synthetic",
+  "records": [
+    {
+      "id": "fixture-grain-a",
+      "name_key": "ingredient.fixture.grain_a",
+      "category_key": "ingredient.category.grain",
+      "energy_kcal_per_100g": 111,
+      "protein_g_per_100g": 3.2,
+      "substitute_ids": ["fixture-grain-b"]
+    },
+    {
+      "id": "fixture-grain-b",
+      "name_key": "ingredient.fixture.grain_b",
+      "category_key": "ingredient.category.grain",
+      "energy_kcal_per_100g": 118,
+      "protein_g_per_100g": 3.4,
+      "substitute_ids": ["fixture-grain-a"]
+    },
+    {
+      "id": "fixture-protein-a",
+      "name_key": "ingredient.fixture.protein_a",
+      "category_key": "ingredient.category.protein",
+      "energy_kcal_per_100g": 127,
+      "protein_g_per_100g": 9.6,
+      "substitute_ids": []
+    }
+  ]
+}

@@ -215,3 +215,20 @@
 - `render()` 三参签名与输出字节未变；`AC-17` 仍 **RED**，合规文档归 T-041、
   CI 门禁接线归 T-042。本追加不改任何 P0 基线 / `ac-*.md` / `tasks.md` 勾选项，
   不把 P1 门禁 `BLOCKED` 改写为通过。
+
+---
+
+## 13. T-035 口径订正（数据源端口未接入 CLI）
+
+> 本节由 T-035 追加；本任务**未修改 `src/cli/` 任何一行实现代码**。
+
+- `src/core/source/` 提供 `loadSourceCatalog(fsPort)` / `loadDataSource(fsPort, id)` /
+  `createDataSourcePort(fsPort)`；`data/source/` 是**元数据目录**，不内置任何真实第三方数据本体。
+- 四条外部 / 用户源全部 `review_status = ai-candidate-unreviewed` + `bundled = false`，
+  加载器一律拒绝（`ERR_SOURCE_REVIEW` / `ERR_SOURCE_BUNDLED`）；唯一可加载的是完全虚构的
+  `synthetic-demo`。许可声明、版本号、来源 URL 均为**未审校的占位声明**，不代表已通过许可审计。
+- 端口**仍须宿主显式注入**：`runCli` 默认 deps 不含数据源端口，`COMMAND_OPTIONS` /
+  `FLAG_KEYS` / `OVERRIDE_KEYS` 均未新增键（零兜底定案不变）。
+- `THIRD_PARTY_NOTICES.md` 与社区规范文件归 T-040 / T-041、CI 许可扫描门禁归 T-042；
+  `AC-13` / `AC-18` 仍 **RED**。本追加不改任何 P0 基线 / `ac-*.md` / `tasks.md` 勾选项，
+  不把 P1 门禁 `BLOCKED` 改写为通过。
