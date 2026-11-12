@@ -252,3 +252,28 @@
 - 中文汉字 GB 18030-2022 实现级别 1 的独立 CI 静态校验脚本归 T-045 `encoding-check`，
   CI 门禁接线归 T-042；本追加不改任何 P0 基线 / `ac-*.md` / `tasks.md` 勾选项，
   不把 P1 门禁 `BLOCKED` 改写为通过。
+
+---
+
+## 15. T-037 口径订正（Phase 2 出口门禁未接入 CLI / CI）
+
+> 本节由 T-037 追加；本任务**未修改 `src/cli/` 任何一行实现代码**。
+
+- `tests/acceptance/gates/p2-gate.mjs` 是**测试层门禁取证器**，与既有 `p1-gate.mjs` 并列，
+  不是新的 CLI 命令、不是运行时输出路径，也不改变 `rr plan` / `rr acceptance` 的行为。
+  单一实现两入口：`node tests/acceptance/gates/p2-gate.mjs` 输出纯 ASCII CI 报告（exit 0/1/2），
+  `runP2Gate()` / `collectP2Evidence()` / `evaluateP2Gate()` 供单测与后续 T-042 接线复用。
+- 门禁真实调用 T-030～T-036 的能力取证 AC-14～17：MCP 工具脱敏、七语言键集、
+  区域来源标注、断网降级、数据源合规、八份多语言快照；十项门禁全部通过，
+  但四条 AC 无一 `E2E_PASS`（`CORE_ONLY=3` / `GAP=1`），结论如实 `verdict=BLOCKED` / exit 2。
+- `runCli` 默认 deps、`COMMAND_OPTIONS` / `FLAG_KEYS` / `OVERRIDE_KEYS` 一字未改；
+  `COMMANDS` 七条 P1 快照与 `P2_COMMANDS = ['serve-mcp','locales']` 不变，`feedback` 仍越界。
+  门禁零磁盘写入、零子进程、零第三方依赖，唯一文件读取是 `node:fs` 三项只读 API
+  与注入的 `fsPort`；真实数据令牌正则动态取自 `ci.yml`，不复制字面量。
+- `.github/workflows/ci.yml` **仍未接入** `p2-gate` / lint / coverage / 语言包键集 /
+  区域来源 / 断网 / 许可扫描（归 T-042）。`reports/t037-p2-gate.md` 是本机可复跑的
+  CI 风格报告，**不代表 CI 已绿**。AC-14～17 仍 **RED**；合规文档归 T-041、
+  编码静态校验归 T-045、交节联网与缓存路径张力归 T-014 人工裁决。
+- 本追加不改任何 P0 基线 / `ac-*.md` / `tasks.md` 勾选项，不把 P1 门禁 `BLOCKED`
+  改写为通过；`ISSUE-20261112-T037-GATE` 已登记 T-037「要求全绿」与基线 RED 的
+  结构性矛盾，待用户书面裁决。
