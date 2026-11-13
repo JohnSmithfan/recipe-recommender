@@ -1,0 +1,15 @@
+# [AIGC] T-040 · RR-T040-20261113-0001 · 待人工审查（P-10） · SPDX-License-Identifier: GPL-3.0-only
+# 本仓库采用 GPL-3.0-only；审阅责任归属见 constitution.md §3.2 与 CONTRIBUTING.md §3。
+#
+# 当前没有经人工确认的 GitHub 团队或 maintainer 账号；本文件不填写任何真实个人
+# 身份、邮箱或组织。下面一行是**占位规则草案**（review_status=ai-candidate-unreviewed）：
+# GitHub 会忽略无效 owner，因此它目前不产生实际审阅请求；维护者人工确认后，
+# 请把 OWNER_TEAM_PLACEHOLDER 替换为真实团队并同步 CHANGELOG.md（P-10）。
+#
+# 建议的后续细化（同样待人工确认）：
+#   /src/core/         核心域审阅
+#   /tests/acceptance/ 验收与门禁审阅
+#   /locales/          语言包译文人工审校
+#   /docs/ /SPEC.md    规格与文档审阅
+#
+* @OWNER_TEAM_PLACEHOLDER
