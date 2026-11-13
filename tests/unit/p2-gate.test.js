@@ -12,7 +12,7 @@
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 
@@ -114,6 +114,24 @@ test('T-037 · 四条 AC 均不得被声明为端到端通过，且每条给出�
     assert.ok(row.gaps.every((g) => typeof g === 'string' && g.length > 8));
   }
   assert.equal(report.rows.filter((r) => r.status === P2_AC_STATUS.E2E).length, 0);
+});
+
+test('T-041 订正 · 合规文档齐备不得让 AC-17 假绿为 E2E_PASS（门禁缺口独立取证）', () => {
+  // T-041 落地 PRIVACY.md / SECURITY.md / THIRD_PARTY_NOTICES.md 后，
+  // T-037 原判据「文档存在 + ci.yml 注释含 license-scan」会把 AC-17 误判为 E2E_PASS。
+  // 合规声明文本不是 AC-17 场景要求的端到端证据，故判据已收紧为：
+  // 文档 + T-042 静态扫描真正接线并存在实体脚本 + AC-17 由人工裁决转绿。
+  for (const f of ['PRIVACY.md', 'SECURITY.md', 'THIRD_PARTY_NOTICES.md']) {
+    assert.ok(existsSync(join(ROOT, f)), `${f} 应已由 T-041 产出`);
+  }
+  assert.equal(evidence.e2e.ac17_compliance_docs, false, '文档齐备本身不构成端到端证据');
+  const row = report.rows.find((r) => r.id === '17');
+  assert.notEqual(row.status, P2_AC_STATUS.E2E);
+  assert.ok(row.gaps.some((g) => g.includes('T-042')), '须如实登记 T-042 静态扫描缺口');
+  // 判定仍非恒假：仅放开 AC-17 一项端到端条件时应出现 E2E，但出口仍 BLOCKED。
+  const partial = broken((e) => { e.e2e.ac17_compliance_docs = true; });
+  assert.equal(partial.rows.find((r) => r.id === '17').status, P2_AC_STATUS.E2E);
+  assert.equal(partial.verdict, 'BLOCKED');
 });
 
 test('T-037 · AC-16 联网刷新交节时刻未接线，必须记为 GAP 而非 CORE_ONLY', () => {

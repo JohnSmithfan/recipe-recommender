@@ -440,6 +440,18 @@ function collectAcBaseline() {
   });
 }
 
+/**
+ * 只看 ci.yml 的**实际执行命令**：P0 骨架头部注释会如实登记 T-042～T-045 待办
+ * （含 `license-scan` 字样），注释不等于接线。T-040 已按此口径订正过一次同类误判，
+ * 此处沿用，避免把「注释里提到门禁」误判为「CI 已接入门禁」。
+ * @param {string} ci
+ * @param {string} command
+ */
+function ciExecWired(ci, command) {
+  const executable = ci.split('\n').filter((line) => !/^\s*#/.test(line)).join('\n');
+  return executable.includes(command);
+}
+
 /** @returns {object} 端到端条件：全部由真实文件 / 运行期状态取证，不硬编码 false */
 function collectE2e(offline, ac) {
   const ci = read('.github/workflows/ci.yml');
@@ -451,8 +463,16 @@ function collectE2e(offline, ac) {
       && exists('scripts/encoding-check.mjs'),
     ac16_calendar_download: offline.calendarStatus === 'verified'
       && offline.calendarNetworkWired === true,
+    // T-041 口径订正（收紧，非放宽）：PRIVACY.md / SECURITY.md /
+    // THIRD_PARTY_NOTICES.md 只是 [AIGC] 候选**声明文本**，不构成 AC-17
+    // 「静态与运行时检查证明零上传、导出/删除可用」的端到端证据。文档齐备
+    // 之外还须：T-042 许可/隐私静态扫描真正接入 CI 且有实体脚本，以及
+    // AC-17 由人工裁决转绿（与 ac14_ci_green 的 AC 全绿口径一致）。
     ac17_compliance_docs: exists('PRIVACY.md') && exists('THIRD_PARTY_NOTICES.md')
-      && /license-scan|third.party/i.test(ci),
+      && exists('SECURITY.md')
+      && ciExecWired(ci, 'scripts/license-scan.mjs')
+      && exists('scripts/license-scan.mjs')
+      && ac.statuses['17'] === 'GREEN',
   });
 }
 
@@ -555,8 +575,8 @@ function rowDetail(id, e) {
           `token_hits=${e.files.tokenHits}`,
         ],
         gaps: [
-          'T-041 的 PRIVACY.md / SECURITY.md / THIRD_PARTY_NOTICES.md 未产出，AC-13 / AC-17 / AC-18 的法律与许可审计缺口未闭合。',
-          'T-042 的真实身体数据 / diet-plan / 包管理器清单 / 受版权保护指南原文静态扫描门禁未接入 CI。',
+          'T-041 已产出 PRIVACY.md / SECURITY.md / THIRD_PARTY_NOTICES.md，但均为 [AIGC] 候选声明文本、未经人工审查，且未构成 AC-17 的端到端证据；AC-13 / AC-17 / AC-18 的法律与许可审计缺口仍未闭合。',
+          'T-042 的真实身体数据 / diet-plan / 包管理器清单 / 受版权保护指南原文静态扫描门禁未接入 CI；AC-17 要求的导出 / 删除端到端验收驱动亦未统一执行。',
         ],
         sources: ['tests/acceptance/offline-integration.mjs', 'src/core/render/enhance.js', 'data/source/catalog.json', 'src/core/source/index.js', 'SPEC.md'],
       };
@@ -679,7 +699,7 @@ export function evaluateP2Gate(evidence) {
   const ok = checksOk && allGreen;
   const blockers = Object.freeze([
     'T-022 P1 出口 verdict=BLOCKED，19/19 AC 仍 RED；T-022 四选一裁决与 ISSUE-20261109-T030-GATE 的 D 解释仍待人工书面决定。',
-    'T-041 PRIVACY.md / SECURITY.md / THIRD_PARTY_NOTICES.md 未产出，AC-13 / AC-17 / AC-18 许可与合规审计缺口未闭合。',
+    'T-041 已产出 PRIVACY.md / SECURITY.md / THIRD_PARTY_NOTICES.md，但属 [AIGC] 候选声明文本、未经人工审查，且合规文档存在不等于 AC-17 端到端通过；AC-13 / AC-17 / AC-18 许可与合规审计缺口未闭合。',
     'T-042 全量 CI 未接入 p2-gate / lint / coverage / 语言包键集 / 区域来源 / 断网 / 许可扫描，无法端到端判定 CI 全绿。',
     'T-045 encoding-check 独立 CI 未落地；AC-15 快照位仍指向 P0 占位 tests/snapshots/ac-15.txt，合并方式待人工裁决。',
     `T-014 按保守解不联网下载交节时刻，CLI calendar.network_wired=${e.offline.calendarNetworkWired}（本地缓存 status=${e.offline.calendarStatus}）；缓存路径 _data/ 与 data/calendar/ 张力待人工裁决。`,
