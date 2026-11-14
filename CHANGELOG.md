@@ -28,18 +28,22 @@
   - 新增零依赖 stdio MCP Server（`src/mcp/`，4 个 `rr_` 工具与类型层隐私护栏）、七语言包（`locales/`，71 键 × 7）、`resolveLocalePolicy` 与区域映射 `data/region/`、LLM 可选增强门（默认关闭）、可插拔数据源端口与元数据目录 `data/source/`、八份真实多语言渲染快照 `tests/snapshots/i18n/`。
   - 新增 `tests/acceptance/gates/p2-gate.mjs` Phase 2 出口门禁取证器：十项门禁全过但四条 AC 无 E2E_PASS，结论 `verdict=BLOCKED` / exit 2（`reports/t037-p2-gate.md`）。
 - **T-040 · `SPEC.md §10` 社区规范文件**：新增 `CONTRIBUTING.md`、`CODE_OF_CONDUCT.md`、`SECURITY.md`、`SUPPORT.md`、`CHANGELOG.md`、Issue / PR 模板与 `config.yml`、`CODEOWNERS`；建议 / 可选文件按登记处理（v1 不产出实体文件）。
+- **T-041 · 合规文档**：新增 `PRIVACY.md`、`THIRD_PARTY_NOTICES.md`，并只追加 `SECURITY.md §6`；两份新文档与 `src/cli/inventory.js` 的 7 个根文件 / 5 个目录、`data/source/catalog.json` 的 5 条 descriptor 动态逐项对齐。同时收紧 `p2-gate` 的 AC-17 判据，修复「合规文档齐备即误判 E2E_PASS」的假绿缺陷（新增 CI 实接剥注释判定 + 脚本实体 + 人工转绿门槛）。
+- **T-042 · Phase 3 全量 CI 门禁与静态扫描**：`.github/workflows/ci.yml` 由 T-006 六 job 骨架升级为九 job 完整版，新增 `license-scan` / `community-files` / `offline` 三个 job，并接入覆盖率阈值、零依赖 lint、语言包键集、区域来源、免责快照与断网集成。新增 `scripts/scan-common.mjs` 公共只读层，以及 `privacy-scan.mjs` / `license-scan.mjs` / `community-files.mjs` / `i18n-keys.mjs` 四个可独立复跑的静态扫描脚本（合计 21 项检查）。
 
 ### Changed
 
 - 按 P-01 订正 `docs/competitive-research.md` 的 M0 阶段滞后文字：宿主平台、实现语言、许可证三项已定案，不再表述为待确认；历史决策依据保留在 `docs/decisions.md`。
-- 逐任务维护 `src/cli/README.md §8～15` 与各模块 README，记录各阶段口径订正与未接线边界。
+- 逐任务维护 `src/cli/README.md §8～16` 与各模块 README，记录各阶段口径订正与未接线边界。
+- 按 T-042 口径订正 `tests/unit/community-files.test.js` / `compliance-files.test.js` 中「不得提前接线 / 脚本不得存在」的历史阶段断言，改为「必须接线且不得假绿」的正向取证；判定未放宽（19/19 RED、零勾选、令牌动态取唯一权威三条不变量保留）。
+- 订正 `tests/acceptance/gates/p2-gate.mjs` 中关于 CI 骨架与静态扫描未接线的时点文字，判定逻辑与 `verdict=BLOCKED` 均未改。
 
 ### Notes
 
-- 门禁结论保持 **BLOCKED**：P1 / P2 取证器均 `baseline_touched=0`，19/19 AC 仍 RED，`tasks.md` 仍 `39 [ ] / 0 [x]`；`ci.yml` 仍是 T-006 骨架，完整门禁归 T-042。
+- 门禁结论保持 **BLOCKED**：P1 / P2 取证器均 `baseline_touched=0`，19/19 AC 仍 RED，`tasks.md` 仍 `39 [ ] / 0 [x]`。T-042 已把 `ci.yml` 升级为九 job 完整版并接入静态扫描，但 **CI 绿不等于 AC 转绿**：`acceptance` 仍以 19/19 全红基线为通过条件，p1-gate / p2-gate 仍 `BLOCKED` / exit 2 且不接入 required jobs；出口裁决归 T-022 四选一与 T-046。
 - 已登记待人工裁决：`T-022` 四选一、`ISSUE-20261109-T030-GATE` 的 D 解释、`ISSUE-20261112-T037-GATE`、AC-15 快照位张力、T-014 缓存路径与交节下载张力，以及 T-040 / T-041 / T-042 之间三处任务表重复点名。
 - 建议 / 可选文件（`FUNDING.yml` / `GOVERNANCE.md` / `CITATION.cff` / `dependabot.yml` / `release.yml` / `CONTRIBUTORS.md` / `AUTHORS.md`）在 `CONTRIBUTING.md §5` 登记，v1 不产出；包管理器发布配置按 FR-052 禁止出现。
 
 ---
 
-本文件由 AI 生成，**待人工审查（P-10）**；T-042 补录 Phase 3 条目时须保持「未发布」口径，不得把 `[Unreleased]` 改写成已发布版本。
+本文件由 AI 生成，**待人工审查（P-10）**；Phase 3 条目（T-041 / T-042）已于 2026-11-13 补录，仍保持「尚未发布」口径，不得把 `[Unreleased]` 改写成已发布版本。后续 T-043～T-046 条目按同口径追加。

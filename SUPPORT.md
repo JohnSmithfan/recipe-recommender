@@ -28,7 +28,7 @@
 ## 3. 当前状态（提问前请先读）
 
 - 本项目处于 **SDD / ATDD 逐任务推进**阶段：P1 / P2 出口门禁均为 `verdict=BLOCKED` / exit 2，`AC-01～19` 仍 19/19 RED，`tasks.md` 仍 `39 [ ] / 0 [x]`。
-- `.github/workflows/ci.yml` 仍是 T-006 六 job 骨架；「CI 绿」只表示骨架可运行 + 红态基线完整，**不代表验收通过**（P-02 / AC-14）。
+- `.github/workflows/ci.yml` 已由 T-042 升级为九 job 完整版（静态扫描已接入）；「CI 绿」只表示门禁可运行 + 19/19 红态基线完整，**不代表验收通过**（P-02 / AC-14）。AC 转绿归 T-046。
 - 因此**没有**可供终端用户安装运行的稳定版本，也**没有**已发布 Release；当前可复跑的是 `npm test` / `npm run lint` / `npm run spec-check` / `npm run acceptance` 与两个门禁取证器（见 `CONTRIBUTING.md §1`）。
 
 ## 4. 我们不提供什么

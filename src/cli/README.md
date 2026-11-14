@@ -277,3 +277,31 @@
 - 本追加不改任何 P0 基线 / `ac-*.md` / `tasks.md` 勾选项，不把 P1 门禁 `BLOCKED`
   改写为通过；`ISSUE-20261112-T037-GATE` 已登记 T-037「要求全绿」与基线 RED 的
   结构性矛盾，待用户书面裁决。
+
+---
+
+## 16. T-042 口径订正（全量 CI 门禁与静态扫描）
+
+> 本节由 T-042 追加；**未修改 `src/cli/` 任何一行实现代码**，§15 保留 T-037 时点快照。
+
+- `tasks.md T-042` 明确把「`.github/workflows/ci.yml` 完整版」列为本任务产出，故按 P0
+  任务表自身规划把 T-006 六 job 骨架升级为**九 job 完整版**：保留 `spec-consistency` /
+  `unit` / `acceptance` / `lint-typecheck` / `privacy-scan` / `matrix` 六个骨架 job 名，
+  新增 `license-scan` / `community-files` / `offline` 三个实际执行门禁。
+- 新接入的十项命令：`npm run spec-check`、`npm test`、`node scripts/coverage.mjs --json`、
+  `npm run acceptance`、`node scripts/lint.mjs`、`node scripts/i18n-keys.mjs`、
+  `node scripts/privacy-scan.mjs`、`node scripts/license-scan.mjs`、
+  `node scripts/community-files.mjs`、`node tests/acceptance/offline-integration.mjs`。
+- `scripts/scan-common.mjs` 是四个扫描器的唯一公共只读层；四个脚本合计 21 项静态检查，
+  均可 `node scripts/<name>.mjs` 独立复跑，输出纯 ASCII `key=value` 且 `status=` 收尾。
+  令牌规则仍以 `ci.yml` 头部声明为唯一权威，脚本反向读取、零复制字面量。
+- **CI 绿不等于 AC 转绿**：`acceptance` job 仍以 19/19 全红基线为通过条件，不接全绿开关、
+  不跳过、不弱化任何场景；`p1-gate` / `p2-gate` 仍 `BLOCKED` / exit 2，是取证器不是出口
+  裁决器，不接入 required jobs。T-044 `polyglot-gate` / T-045 `encoding-check` 只登记不接线，
+  AC-13 / AC-17 / AC-18 / AC-19 转绿归 T-046 人工裁决。
+- 按 T-042 口径订正 `tests/unit/community-files.test.js` / `compliance-files.test.js` 的
+  「不得提前接线」历史阶段断言（改为更严的正向取证），并订正 `p2-gate.mjs` 的两处 gap
+  时点文字；**判定逻辑与 `verdict=BLOCKED` 一字未放宽**。
+- `runCli` 默认 deps、`COMMANDS` 七条 P1 快照、`P2_COMMANDS`、`FLAG_KEYS`、
+  `OVERRIDE_KEYS` 一律未改；`src/cli/` 仍零 `node:` 导入、端口工厂仅显式注入、
+  `rr plan` 零兜底不变。19/19 AC 仍 RED、`tasks.md` 仍 `39 [ ] / 0 [x]`。

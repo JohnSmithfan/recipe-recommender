@@ -10,7 +10,8 @@
  * 基线变更经人工审查；T-022 的 P1 出口目前仍是 BLOCKED，四选一裁决待人工书面决定。
  *
  * 结构性矛盾（tasks.md T-037 要求「AC-14～17 全部转绿」）：
- * - P0 基线 `ac-*.md` 仍 19/19 RED、`tasks.md` 仍 39 [ ] / 0 [x]、`ci.yml` 是 T-006 骨架；
+ * - P0 基线 `ac-*.md` 仍 19/19 RED、`tasks.md` 仍 39 [ ] / 0 [x]；
+ *   `ci.yml` 已由 T-042 升级为九 job 完整版，但 CI 绿不等于 AC 转绿；
  * - T-041 合规文档、T-042 全量 CI、T-045 encoding-check、T-014 交节联网均未落地；
  * - P1 门禁 `verdict=BLOCKED`，`ISSUE-20261109-T030-GATE` 的 D 解释仍待复核。
  * 因此本任务交付「可复核的取证器 + CI 风格报告」，结论如实 BLOCKED / exit 2，
@@ -441,8 +442,8 @@ function collectAcBaseline() {
 }
 
 /**
- * 只看 ci.yml 的**实际执行命令**：P0 骨架头部注释会如实登记 T-042～T-045 待办
- * （含 `license-scan` 字样），注释不等于接线。T-040 已按此口径订正过一次同类误判，
+ * 只看 ci.yml 的**实际执行命令**：CI 头部注释会如实登记 T-044～T-045 待办，
+ * 注释不等于接线。T-040 已按此口径订正过一次同类误判，
  * 此处沿用，避免把「注释里提到门禁」误判为「CI 已接入门禁」。
  * @param {string} ci
  * @param {string} command
@@ -519,7 +520,7 @@ function rowDetail(id, e) {
           `ac.status=${e.ac.statuses['14']}`,
         ],
         gaps: [
-          'AC-14 要求追溯矩阵与 CI 全绿；当前 ci.yml 仍是 T-006 六 job 骨架，未接入 p2-gate / lint / coverage / 语言包键集（T-042）。',
+          'AC-14 要求追溯矩阵与 CI 全绿；T-042 已把 ci.yml 升级为九 job 完整版并接入 lint / coverage / 语言包键集 / 静态扫描，但出口取证器仍 BLOCKED / exit 2、19/19 AC 仍 RED，CI 绿不等于 AC 转绿（T-042 / T-046）。',
           'P1 门禁 verdict=BLOCKED，19/19 AC 仍 RED；T-022 四选一裁决与 D 解释仍待人工书面决定。',
         ],
         sources: ['src/mcp/index.js', 'src/mcp/tools.js', 'tests/unit/p2-gate.test.js', 'SPEC.md', '.github/workflows/ci.yml'],
@@ -576,7 +577,7 @@ function rowDetail(id, e) {
         ],
         gaps: [
           'T-041 已产出 PRIVACY.md / SECURITY.md / THIRD_PARTY_NOTICES.md，但均为 [AIGC] 候选声明文本、未经人工审查，且未构成 AC-17 的端到端证据；AC-13 / AC-17 / AC-18 的法律与许可审计缺口仍未闭合。',
-          'T-042 的真实身体数据 / diet-plan / 包管理器清单 / 受版权保护指南原文静态扫描门禁未接入 CI；AC-17 要求的导出 / 删除端到端验收驱动亦未统一执行。',
+          'T-042 已把真实身体数据 / diet-plan / 包管理器清单 / 受版权保护指南原文静态扫描接入 CI，但静态扫描不构成 AC-17 的端到端证据；导出 / 删除端到端验收驱动与人工许可审计仍未统一执行（T-042 / T-046）。',
         ],
         sources: ['tests/acceptance/offline-integration.mjs', 'src/core/render/enhance.js', 'data/source/catalog.json', 'src/core/source/index.js', 'SPEC.md'],
       };

@@ -34,7 +34,7 @@
 | `node tests/acceptance/gates/p1-gate.mjs` | Phase 1 出口门禁取证 |
 | `node tests/acceptance/gates/p2-gate.mjs` | Phase 2 出口门禁取证 |
 
-**当前状态如实说明**：P1 / P2 门禁均为 `verdict=BLOCKED` / **exit 2**（取证完成但出口未达成，不是取证失败）；`AC-01～19` 仍 19/19 RED，`tasks.md` 仍 `39 [ ] / 0 [x]`；`.github/workflows/ci.yml` 仍是 T-006 六 job 骨架，完整门禁接线归 T-042。**不得为了让 CI 变绿而删除、跳过或弱化任何 AC 场景**（P-09 / RK-03），也不得把红态基线提前改成 GREEN（P-02）。
+**当前状态如实说明**：P1 / P2 门禁均为 `verdict=BLOCKED` / **exit 2**（取证完成但出口未达成，不是取证失败）；`AC-01～19` 仍 19/19 RED，`tasks.md` 仍 `39 [ ] / 0 [x]`；`.github/workflows/ci.yml` 已由 **T-042** 升级为九 job 完整版并接入静态扫描，但 **CI 绿不等于 AC 转绿**：`acceptance` 仍以全红基线为通过条件，出口裁决归 T-046。**不得为了让 CI 变绿而删除、跳过或弱化任何 AC 场景**（P-09 / RK-03），也不得把红态基线提前改成 GREEN（P-02）。
 
 ---
 

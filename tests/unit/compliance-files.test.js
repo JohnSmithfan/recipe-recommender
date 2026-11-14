@@ -252,14 +252,20 @@ test('T-041 · SECURITY 新增法律合规章节，含适用法律、数据主�
 
 // ---------------------------------------------------------------- 不变量与防假绿
 
-test('T-041 · 不越界：未产出 T-042 的扫描脚本，未改 ci.yml 骨架，未接线新门禁', () => {
-  assert.equal(existsSync(join(ROOT, 'scripts/license-scan.mjs')), false, '许可扫描脚本归 T-042');
+// [T-042 口径订正] 原断言「扫描脚本不存在 / 未接线」是 T-041 阶段的时点快照。
+// T-042 已产出实体脚本并接入 CI，改为**更严**的正向取证：脚本存在、CI 剥注释后
+// 真实执行、且出口裁决器仍不得提前接入 required jobs。
+test('T-042 口径订正 · 静态扫描脚本与 CI 接线已落地，出口裁决器仍不提前接线', () => {
+  assert.equal(existsSync(join(ROOT, 'scripts/license-scan.mjs')), true, 'T-042 许可扫描脚本应已产出');
   const ci = read('.github/workflows/ci.yml');
+  const executable = ci.split('\n').filter((line) => !/^\s*#/.test(line)).join('\n');
   for (const job of ['spec-consistency', 'unit', 'acceptance', 'lint-typecheck', 'privacy-scan', 'matrix']) {
-    assert.ok(ci.includes(job), `CI 骨架缺 ${job}`);
+    assert.ok(ci.includes(job), `CI 完整版缺骨架 job ${job}`);
   }
-  for (const cmd of ['p2-gate.mjs', 'encoding-check.mjs', 'license-scan.mjs']) {
-    assert.equal(ci.includes(cmd), false, `${cmd} 属 T-042+，不得提前接线`);
+  assert.ok(executable.includes('node scripts/license-scan.mjs'), 'CI 未实际执行许可扫描脚本');
+  assert.ok(executable.includes('node scripts/privacy-scan.mjs'), 'CI 未实际执行隐私扫描脚本');
+  for (const forbidden of ['p2-gate.mjs', 'encoding-check.mjs', '--allow-green']) {
+    assert.equal(executable.includes(forbidden), false, `${forbidden} 不得提前接入 required jobs`);
   }
 });
 
@@ -282,7 +288,8 @@ test('T-041 · 门禁已收紧：合规文档齐备不得单独把 AC-17 判为 
   assert.ok(clause[0].includes('scripts/license-scan.mjs'), '未要求 T-042 扫描脚本实体');
   assert.ok(clause[0].includes('ciExecWired'), '未排除 ci.yml 头部注释的假接线');
   assert.ok(clause[0].includes("exists('SECURITY.md')"), '未校验 SECURITY.md');
-  assert.equal(existsSync(join(ROOT, 'scripts/license-scan.mjs')), false, 'T-042 脚本不得提前产出');
+  assert.equal(existsSync(join(ROOT, 'scripts/license-scan.mjs')), true,
+    'T-042 扫描脚本已产出；但 AC-17 仍须人工裁决转绿，不得自动 E2E_PASS');
 });
 
 test('T-041 · AC 仍 19/19 RED、tasks.md 零勾选、T-041 行未勾选（P-02 / AC-14）', () => {

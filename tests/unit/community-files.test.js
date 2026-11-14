@@ -220,27 +220,32 @@ test('T-040 · FR-052：仓库无包管理器清单 / publishConfig / 发布流�
   assert.match(pkg, /"private": true/);
 });
 
-test('T-040 · ci.yml 仍是 T-006 六 job 骨架，未提前假绿接入新门禁（归 T-042）', () => {
+// [T-042 口径订正] 原断言锁定「ci.yml 仍是 T-006 六 job 骨架、不得提前接线」，
+// 属 T-040 阶段的时点快照。T-042 已按 P0 任务表产出 ci.yml 完整版，故改为
+// **更严**的正向取证：六骨架 job 一个不少、门禁必须真实接线、且不得假绿。
+// 判定未放宽：AC 红态、tasks.md 零勾选、令牌动态取唯一权威三条不变量均保留。
+test('T-042 口径订正 · ci.yml 已升级为完整版，六骨架 job 未被削弱且不得假绿', () => {
   const t = read('.github/workflows/ci.yml');
-  for (const job of ['spec-consistency', 'unit', 'acceptance', 'lint-typecheck', 'privacy-scan', 'matrix']) {
-    assert.ok(t.includes(job), `CI 骨架缺 ${job}`);
-  }
-  // 只看**实际执行命令**：P0 骨架头部注释本来就会如实登记 T-042～T-045 待办，
-  // 注释里出现门禁名称不等于接线；把注释误判为接线反而会掩盖真正的假绿。
-  const futureCommands = [
-    'p2-gate.mjs', 'encoding-check.mjs', 'node scripts/coverage.mjs',
-    'node scripts/lint.mjs', 'locales --verify', 'license-scan.mjs',
-    'dependabot.yml', 'release.yml',
-  ];
-  for (const cmd of futureCommands) {
-    assert.equal(t.includes(cmd), false, `${cmd} 属 T-042+，不得提前接线`);
-  }
-  assert.match(t, /T-042/, 'ci.yml 头部须如实登记后续门禁待办');
   const sixJobs = ['spec-consistency', 'unit', 'acceptance', 'lint-typecheck', 'privacy-scan', 'matrix'];
   for (const job of sixJobs) {
     assert.equal((t.match(new RegExp(`^  ${job}:\\s*$`, 'gm')) ?? []).length, 1,
       `${job} 应恰好作为一个顶层键出现`);
   }
+  // 只看**实际执行命令**：头部注释会如实登记 T-044 / T-045 待办，
+  // 注释里出现门禁名称不等于接线；把注释误判为接线反而会掩盖真正的假绿。
+  const executable = t.split('\n').filter((line) => !/^\s*#/.test(line)).join('\n');
+  for (const cmd of [
+    'node scripts/lint.mjs', 'node scripts/license-scan.mjs',
+    'node scripts/privacy-scan.mjs', 'node scripts/i18n-keys.mjs',
+    'node scripts/coverage.mjs',
+  ]) {
+    assert.ok(executable.includes(cmd), `${cmd} 未真正接入 CI 执行`);
+  }
+  for (const forbidden of ['--allow-green', 'continue-on-error', 'node scripts/encoding-check.mjs']) {
+    assert.equal(executable.includes(forbidden), false, `${forbidden} 会弱化门禁或提前接线`);
+  }
+  assert.ok(existsSync(join(ROOT, 'scripts/license-scan.mjs')), 'T-042 扫描脚本实体缺失');
+  assert.match(t, /T-045/, 'ci.yml 头部须如实登记后续门禁待办');
 });
 
 test('T-040 · P-01 遗留订正：competitive-research 不再把已定案项写成待确认', () => {
