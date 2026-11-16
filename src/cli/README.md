@@ -305,3 +305,24 @@
 - `runCli` 默认 deps、`COMMANDS` 七条 P1 快照、`P2_COMMANDS`、`FLAG_KEYS`、
   `OVERRIDE_KEYS` 一律未改；`src/cli/` 仍零 `node:` 导入、端口工厂仅显式注入、
   `rr plan` 零兜底不变。19/19 AC 仍 RED、`tasks.md` 仍 `39 [ ] / 0 [x]`。
+
+## 17. T-043 口径订正（实现语言与 Corresponding Source 门禁）
+
+> 本节由 T-043 追加；**未修改 `src/cli/` 任何一行实现代码**，§15/§16 保留各自时点快照。
+
+- T-043 按 `tasks.md` 产出 `scripts/language-source.mjs` 静态取证器与 `docs/release-audit.md`
+  发布审计记录；`ci.yml` 九 job 完整版未被改动，新取证器**不接入 CI 必跑门禁**
+  （与 p1-gate / p2-gate 取证器同口径，AC-19 未转绿前不接 required jobs）。
+- 取证器按文件头魔数识别 ELF / Mach-O / PE / WASM / JVM class，并校验现行
+  ISO/IEC 22275:2018 引用、人类可读源码、单一实现语言、产物一一对应规则、
+  三平台矩阵契约、贡献者零真实数据、发布审计记录共 8 项；判定抽成可负向注入的纯函数。
+- **如实登记的边界**：v1 `release_artifacts=0`（尚未发布、不发 Release），
+  一一对应仅是空集上的规则可证（vacuous truth），**不构成端到端证据**；
+  `ci.yml` matrix 为 3 OS × 3 Node = 9 格，本机仅 macOS 1 格可实测，
+  GitHub Actions 未联网核实；`verdict=STATIC_ONLY` 不等于 AC-19 通过。
+- `src/.DS_Store` 是未被 Git 跟踪、被 `.gitignore` 忽略的 macOS 元数据，
+  显式排除在「机器码实现主体」之外并如实登记；不得误判为假红或假绿。
+- `runCli` 默认 deps、`COMMANDS` 七条 P1 快照、`P2_COMMANDS`、`FLAG_KEYS`、
+  `OVERRIDE_KEYS` 一律未改；`src/cli/` 仍零 `node:` 导入、端口工厂仅显式注入、
+  `rr plan` 零兜底不变。19/19 AC 仍 RED、`tasks.md` 仍 `39 [ ] / 0 [x]`，
+  AC-19 转绿归 T-046 人工裁决，真实 Release 归档归 T-052。

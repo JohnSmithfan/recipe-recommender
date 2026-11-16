@@ -30,11 +30,12 @@
 - **T-040 · `SPEC.md §10` 社区规范文件**：新增 `CONTRIBUTING.md`、`CODE_OF_CONDUCT.md`、`SECURITY.md`、`SUPPORT.md`、`CHANGELOG.md`、Issue / PR 模板与 `config.yml`、`CODEOWNERS`；建议 / 可选文件按登记处理（v1 不产出实体文件）。
 - **T-041 · 合规文档**：新增 `PRIVACY.md`、`THIRD_PARTY_NOTICES.md`，并只追加 `SECURITY.md §6`；两份新文档与 `src/cli/inventory.js` 的 7 个根文件 / 5 个目录、`data/source/catalog.json` 的 5 条 descriptor 动态逐项对齐。同时收紧 `p2-gate` 的 AC-17 判据，修复「合规文档齐备即误判 E2E_PASS」的假绿缺陷（新增 CI 实接剥注释判定 + 脚本实体 + 人工转绿门槛）。
 - **T-042 · Phase 3 全量 CI 门禁与静态扫描**：`.github/workflows/ci.yml` 由 T-006 六 job 骨架升级为九 job 完整版，新增 `license-scan` / `community-files` / `offline` 三个 job，并接入覆盖率阈值、零依赖 lint、语言包键集、区域来源、免责快照与断网集成。新增 `scripts/scan-common.mjs` 公共只读层，以及 `privacy-scan.mjs` / `license-scan.mjs` / `community-files.mjs` / `i18n-keys.mjs` 四个可独立复跑的静态扫描脚本（合计 21 项检查）。
+- **T-043 · 实现语言与 Corresponding Source 门禁（AC-19）**：新增 `scripts/language-source.mjs` 静态取证器（8 项检查：现行 ISO/IEC 22275:2018 语言、人类可读源码、无机器码 / ISA 绑定二进制、单一实现语言、产物一一对应规则、三平台矩阵契约、贡献者零真实数据、发布审计记录），按文件头魔数识别 ELF / Mach-O / PE / WASM / JVM class；判定逻辑抽成可负向注入的纯函数。新增 `docs/release-audit.md` 发布审计记录与 `tests/unit/t043-language-source.test.js`。**如实登记**：v1 `release_artifacts=0`（尚未发布）、一一对应为空集上的规则可证、**不构成端到端证据**；本机仅 1/9 矩阵格可实测、CI 未联网核实；`verdict=STATIC_ONLY` 仅表示静态检查零命中，AC-19 仍 RED，转绿归 T-046、真实归档归 T-052。取证器不接入 CI 必跑门禁。
 
 ### Changed
 
 - 按 P-01 订正 `docs/competitive-research.md` 的 M0 阶段滞后文字：宿主平台、实现语言、许可证三项已定案，不再表述为待确认；历史决策依据保留在 `docs/decisions.md`。
-- 逐任务维护 `src/cli/README.md §8～16` 与各模块 README，记录各阶段口径订正与未接线边界。
+- 逐任务维护 `src/cli/README.md §8～17` 与各模块 README，记录各阶段口径订正与未接线边界。
 - 按 T-042 口径订正 `tests/unit/community-files.test.js` / `compliance-files.test.js` 中「不得提前接线 / 脚本不得存在」的历史阶段断言，改为「必须接线且不得假绿」的正向取证；判定未放宽（19/19 RED、零勾选、令牌动态取唯一权威三条不变量保留）。
 - 订正 `tests/acceptance/gates/p2-gate.mjs` 中关于 CI 骨架与静态扫描未接线的时点文字，判定逻辑与 `verdict=BLOCKED` 均未改。
 
