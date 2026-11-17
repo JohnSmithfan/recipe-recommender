@@ -1,0 +1,328 @@
+# `src/cli/` · CLI 适配层（T-019 / T-020）
+
+> [AIGC] 本文件由 AI 依据 `SPEC.md v0.4.0-draft` / `plan.md §4 §6.2 §9` / `tasks.md T-019 T-020` 生成 ·
+> 审计追踪 ID：`RR-T019-20261108-0001`（T-019）、`RR-T020-20261108-0001`（T-020）· 待人工审查（P-10）
+
+命令集：`rr init` / `rr plan` / `rr validate` / `rr ledger` / `rr acceptance`（T-019）
++ `rr export-data` / `rr delete-data`（T-020）。
+映射：`FR-029`、`FR-040`、`FR-041`、`FR-046`、`FR-028`、`FR-033`、`FR-047`、`FR-048`、`FR-049`、`FR-050`、
+`AC-12`、`AC-14`、`AC-17`、`SC-009`、`SC-013`、`NFR-002`。
+
+## 1. 模块划分
+
+| 文件 | 职责 | 关键约束 |
+| --- | --- | --- |
+| `errors.js` | `CLI_ERROR` 稳定码 + `CliError` | `code` 恒为 `ERR_CLI_INVALID`，具体码在 `issues[].code`（同 T-010～T-018 口径） |
+| `args.js` | `parseArgs(argv)` → `{command, options}` | 每命令显式选项白名单；重复拒绝；值不得含控制字符 / 竖线 / 反引号 / 绝对路径 |
+| `config.js` | `parseConfigText` / `resolveOverrides` | 四层优先级 `CLI > env > config > auto`；固定键集 `lang/guideline/calendar/country` |
+| `intl.js` | `createIntlFormatter({locale})` | 只用运行时内置 `Intl`（非第三方、非在线），只影响呈现 |
+| `shared.js` | 行构造、端口校验、配置文件读取、issue 展开 | 输出行 `key=value` 且值仅可打印 ASCII |
+| `init.js` | `rr init` | 校验档案 → 建三本台账表头 + `rr.config.json`；幂等（E-05 只追加） |
+| `plan.js` | `rr plan` | 组合根：档案 → 策略 → 缓存 → 处方 → 计划 → 语言包 → 渲染 → 落盘 |
+| `validate.js` | `rr validate` | 以 `rr-data` 规范数据区为准复算比对（与语言 / 排版解耦） |
+| `ledger.js` | `rr ledger` | 只读；行**原样透传**，不重新序列化 |
+| `acceptance.js` | `rr acceptance` | 只做参数转发与红绿汇报，驱动仍在 `tests/acceptance/` |
+| `inventory.js` | 数据清单 + 导出格式 | 用户数据全量、程序数据永不入册；围栏长度自适应、可无损反解析 |
+| `export-data.js` | `rr export-data` | 逐字节导出用户数据；终端与日志只出计数与稳定码 |
+| `delete-data.js` | `rr delete-data` | 缺 `--confirm` 零删除；删后复验 `residue=0`，非 0 失败关闭 |
+| `run.js` | `runCli(argv, deps)` | 退出码契约 + 错误展开；解析失败不进入任何命令 |
+
+配套 IO 端口：`src/io/log.js`（T-020 日志适配器，见 §6）。
+
+## 2. 口径细化（本轮定案）
+
+| ID | 结论 |
+| --- | --- |
+| `FR-029` | 命令集严格限定为七条（T-019 五条 + T-020 两条）；`locales` 归 T-031、`serve-mcp` 归 T-030、`feedback` 归 M2 细化，**不出现在本任务** |
+| `FR-046` | 本层只做「取值 + 记录来源」，**不决定任何策略值**；国籍 → 居住地 → 回退归 T-032 `resolveLocalePolicy` |
+| `FR-046` | 来源分三层（`cli` / `env` / `config`），env 变量名是稳定契约：`RR_LANG` / `RR_GUIDELINE` / `RR_CALENDAR` / `RR_COUNTRY` |
+| `FR-046` | 失败关闭：任一层出现非法值即拒绝，env 的空串视为「未设置」，CLI / 配置层的空串视为配置错误 |
+| `FR-041` | 输出只有 `key=value`，值仅可打印 ASCII；错误只有 `error=<稳定码>` + `issue=<码>:<字段>:<提示>`，零自然语句 |
+| `FR-028` | 同输入两次运行输出与落盘字节完全一致；无时间戳、无随机数、无环境推断 |
+| `FR-043` | `intlFormatter` 只做区域呈现；`render` 侧仍校验其输出确定 / 单行 / 不含竖线与反引号 |
+| `FR-007` | `--date` 只覆盖**运行日**，不伪造运行时刻：日级仍要求业务时区 20:00 触发 |
+| `AC-12` | `rr plan` 只读当年时令缓存，**零对外请求**（断网 + 缓存即可产出全部层级） |
+| `AC-14` | `--red-check` 若发现已绿场景，判定基线被绕过并失败（`ERR_CLI_DRIFT`），不继续 |
+| `SC-009` | 从零到第一份日计划 = `rr init --profile <p>` + `rr plan --level day` = **2 步** |
+| `P-14` | CLI 输出与错误永不携带身体数值；计划正文只允许 BMR 作为护栏下限出现（`FR-002` 要求） |
+| `P-11` | `src/cli/*.js` 零 `node:` 导入（只经注入端口），首行 SPDX 头；输出行构造做 ASCII 门禁 |
+
+### 2.1 T-020 追加定案
+
+| ID | 结论 |
+| --- | --- |
+| `FR-049` | **用户数据** = 根目录 7 个文件（`changelog.md` / `daily-plan.md` / `feedback.md` / `history.md` / `periodic-plan.md` / `rr.config.json` / `weekly-plan.md`）+ 5 个目录（`_exports` / `data/calendar` / `logs` / `plans` / `profiles`）。`data/guideline/` 是内置程序数据，**不导出、不删除** |
+| `FR-049` | 删除必须显式 `--confirm`：缺失即 `ERR_CLI_CONFIRM` 且**一次文件读写都不发生**，删除不可撤销不能靠默认值 |
+| `FR-049` | 删除后重新扫清单复验，`residue=0` 才算成功；非 0 即 `ERR_CLI_RESIDUE` 失败关闭（`SC-013` 无残留）。代价是错误路径不输出 `deleted` 计数——见 §6.3 |
+| `FR-047` | 导出含**用户全部数据原样内容**（含身体档案）：这是用户拿回自己数据的唯一途径，不做脱敏；脱敏等于不给数据 |
+| `FR-047` | 但 CLI 输出行与日志行**零身体数值**：`files` / `deleted` / `residue` 只是计数，事件只有 Canonical ID |
+| `FR-048` | 两条命令**不引用 `netPort`**，源码零 `node:` / 零 `fetch` / 零硬编码 URL；「零上传」由源码可静态证明，不靠运行期断言 |
+| `FR-050` | 清单一律 POSIX 相对路径、纯 ASCII；格式层只校验路径**形状**（安全相对 ASCII），归属判断只在清单层 |
+| `NFR-002` | 日志值**只接受字符串**且必须是 Canonical ID / 稳定码：`typeof value === 'number'` 直接拒绝，身体数值在类型层就进不了日志 |
+| `FR-028` | 导出确定：同输入两次字节一致、纯 LF、单一结尾换行、零时间戳；围栏长度 = 正文最长反引号段 + 1，故正文含 ``` 也不截断 |
+
+## 3. 端口契约（`runCli(argv, deps)`）
+
+| 端口 | 必需性 | 归属 | 缺失时 |
+| --- | --- | --- | --- |
+| `fsPort` | 全部命令 | T-002 | `ERR_CLI_PORT.(deps).fsPort` |
+| `clock` | `plan` / `validate`（推导文件时） | T-002 | `ERR_CLI_PORT.(deps).clock` |
+| `resolveLocalePolicy` | `plan` | **T-032** | `ERR_CLI_PORT.(deps).resolveLocalePolicy` |
+| `loadLanguagePack` | `plan` | **T-031** | `ERR_CLI_PORT.(deps).loadLanguagePack` |
+| `acceptanceRunner` | `acceptance` | T-004 驱动 | `ERR_CLI_PORT.(deps).acceptanceRunner` |
+| `intlFormatter` | 可选 | T-019 | 缺省用 `createIntlFormatter({locale})` |
+| `logPort` | `export-data` / `delete-data` | T-020 | `ERR_CLI_PORT.(deps).logPort`（exit 3） |
+| `netPort` | 仅测试断言零请求 | T-002 | 本任务不使用 |
+
+**端口缺失即失败，不内置兜底实现**——否则会把 T-031 的七语言包与 T-032 的区域映射偷偷复刻一份。
+
+## 4. 退出码
+
+| 码 | 含义 |
+| --- | --- |
+| `0` | 成功 |
+| `1` | 用法错误（命令 / 参数层） |
+| `2` | 业务拒绝（档案、计划、校验、渲染等域错误） |
+| `3` | 端口缺失（未注入必需依赖） |
+
+## 5. 校验记录（2026-11-08）
+
+| 项 | 结果 |
+| --- | --- |
+| `node --test tests/unit/cli.test.js` | **44 / 44** |
+| `node --test tests/unit/log.test.js` | **10 / 10** |
+| `node --test tests/unit/privacy.test.js` | **18 / 18** |
+| `npm test`（全量，含 T-020） | **278 / 278** |
+| `npm run acceptance` | 19/19 RED · 红态基线有效（exit 0 仅代表基线完整，P-02） |
+| `npm run spec-check` | PASS |
+| 负向探针 `reviews/t019-negative.mjs` | 38 项弱化逐项检出，全部字节级还原 |
+| 先红证据（T-019） | 实现前 `npm test` = 207 tests / 206 pass / **1 fail**（`ERR_MODULE_NOT_FOUND: src/cli/index.js`） |
+| 先红证据（T-020） | 实现前 `npm test` = 252 tests / 249 pass / **3 fail**（`log.test.js` / `privacy.test.js` / 命令集断言；根因 `does not provide an export named 'LOG_ERROR'`） |
+
+## 6. 数据主体命令口径（T-020）
+
+### 6.1 清单与导出格式
+
+- 清单口径见 §2.1 第一行；`listDataFiles` 排序输出 POSIX 相对路径，目录缺失即空（E-05：首次运行与删除后重跑都要能过）。
+- 导出格式：`# rr-export` + `version=1` + 每文件一节（`## file: <path>` + 围栏）。围栏长度 `= max(3, 正文最长反引号连续段 + 1)`，因此正文里的 ``` 永远不可能与围栏混淆，`parseExportText(buildExportText(x)) === x` 可无损往返。
+- `buildExportText` / `parseExportText` 只校验路径**形状**，不判断归属——否则这个纯函数就无法作为最小往返单元独立使用（本轮实现即因此修正过一次分层错误）。
+
+### 6.2 导出计数
+
+`files=` 报**清单条目数**（含目标文件自身）。当导出目标落在清单内（重跑 `export-data`）时，正文会排除目标文件以避免自引用，故「正文条目数」最多比 `files` 小 1。选择这个语义是因为：`files` 是清单规模的可观测指标，自引用排除是写入细节，两者混为一谈会让「上次的导出算不算我的数据」变得不可判断。
+
+### 6.3 残留即失败关闭
+
+`delete-data` 删除后重新扫清单，`residue != 0` 时抛 `ERR_CLI_RESIDUE`（exit 2）。**已知代价**：错误路径整体替换成功输出，`deleted` 计数不输出。取舍是「宁可少报一个计数，也不能报告成功却没删净」——`SC-013` 的「无残留」是可验收结论，不是可参考提示。重跑 `rr delete-data --confirm` 幂等，可作为重试手段。
+
+该路径由故障注入单测固定：把 `FsPort.remove` 换成「跳过 `data/` 下所有文件」，`delete-data` 必须 exit 2 且报 `ERR_CLI_RESIDUE`，而不是报告成功（Round 12 探针 NEG-31 暴露的门禁缺口，已补独立取证断言）。
+
+### 6.4 日志适配器（`src/io/log.js`）
+
+- 行格式固定 `level=<三档> event=<Canonical ID> code=<ok|ERR_*>`（可选 `field=<Canonical ID>`），零时间戳、零数字、零自然语句。
+- 值只接受**字符串**且必须匹配 Canonical ID / 稳定码正则；数值、布尔、`null`、数组、对象一律 `ERR_LOG_VALUE`。身体数值因此在类型层就进不了日志，无需事后清洗。
+- 固定键集白名单 `{event, code, field?}`：`body` / `note` / `path` 等未知键直接拒绝，防止「顺手把上下文塞进日志」把个人信息带出去。
+- 零 IO：不落盘、不联网、不读环境；落地只经注入的 `sink`，缺省不写任何地方。
+- 端口缺失即 `ERR_CLI_PORT`（exit 3）：数据主体操作不允许「无审计痕迹地完成」。
+
+## 7. 边界
+
+- `AC-12` / `AC-14` / `AC-17` 仍需 T-021 / T-034 / T-041 与验收驱动转绿，本任务完成后**仍为 RED**。
+- 年为单位的**联网刷新**入口不在 T-019 命令集内：`rr plan` 只读缓存（`FR-012` 下层只读）。
+- 语言包内容（`locales/`）与区域映射表（`data/region/`）分别归 T-031 / T-033，本目录**不含任何译文或映射数据**。
+- 导出不加密、不打包：`FR-049` 只要求「用户能一次性拿走」，格式可读优先；传输与备份不属本任务。
+
+---
+
+## 8. T-030 追加定案（`rr serve-mcp`）
+
+> 本节由 T-030 追加；上文 §1～§7 是 T-019 / T-020 的 P1 定案，保留不改作为历史取证。
+
+- `src/cli/args.js` 的 `COMMANDS` 保持**七条 P1 快照一字不改**；新增 `P2_COMMANDS`（`['serve-mcp']`）与 `ALL_COMMANDS`（解析白名单 = P1 ∪ P2）。`cli.test.js` / `privacy.test.js` / `reviews/agent-p1.mjs` 的 P1 判定因此既未被改写、也未被放宽；`locales` / `feedback` 仍是越界命令。
+- `src/cli/serve-mcp.js` 是唯一新增处理器，只做端口校验与桥接，不生成计划 / 台账 / 译文。MCP 实现全部在 `src/mcp/`（见该目录 README）。
+- `mcpInput` / `mcpOutput` 未注入即 `CliError(ERR_CLI_PORT)` → `runCli` exit `3`，与 T-019 端口缺失口径一致；`mcpPorts` 可缺省，此时四个 `rr_` 工具各自返回 `ERR_MCP_PORT`。
+- **输出契约唯一例外**：MCP 帧直接写注入流，处理器返回零条 `key=value` 行、`status=` 收尾对该命令不适用，否则会污染 stdio 帧流。此例外由 `tests/unit/mcp.test.js` 固定断言。
+- 原生异常文本在桥接层折叠为稳定码，不回传客户端（FR-048）。
+- 本追加**不改任何 P0 基线、不改 `ac-*.md` 状态、不改 `tasks.md` 勾选项，也不把 P1 门禁 `BLOCKED` 改写为通过**。
+
+---
+
+## 9. T-031 追加定案（`rr locales`）
+
+> 本节由 T-031 追加；上文 §8 是 T-030 定案，`locales` 当时确属越界，保留不改作为历史取证。
+
+- **§8 口径订正**：`locales` 现已由 T-031 注册进 `P2_COMMANDS`，不再是越界命令；`feedback` 仍越界。`P2_COMMANDS = ['serve-mcp', 'locales']`，`ALL_COMMANDS` 共 9 条；`COMMANDS` 的七条 P1 快照仍一字未改。
+- `FLAG_KEYS` 追加 `verify`（只属 `locales`，不泄漏给其它命令）；`COMMAND_OPTIONS.locales = ['verify']`。
+- `src/cli/locales.js`：`rr locales` 列七个标签；`rr locales --verify` 校验七包键集 100% 一致，漂移即 `ERR_CLI_LOCALES` / exit 2；缺 `fsPort` 即 `ERR_CLI_PORT` / exit 3。
+- `src/io/language-pack.js` 的 `createLanguagePackLoader(fsPort)` 就是 §4 表中登记归 **T-031** 的 `loadLanguagePack` 端口实现，可直接注入 `runCli(['plan'], deps)`；本目录仍零 `node:` 导入。
+- `cli.test.js` / `privacy.test.js` 的 P1 判定未改写未放宽；`mcp.test.js` 中 T-030 的三条命令集断言按新口径更新（`COMMANDS` 与 `feedback` 判定不变）。
+- 本追加同样不改任何 P0 基线 / `ac-*.md` / `tasks.md` 勾选项，不把 P1 门禁 `BLOCKED` 改写为通过。
+
+---
+
+## 10. T-032 口径订正（`resolveLocalePolicy` 端口实现已提供）
+
+> 本节由 T-032 追加；本任务**未修改 `src/cli/` 任何一行代码**，只登记端口来源与剩余接线缺口。
+
+- §4 端口表中登记归 **T-032** 的 `resolveLocalePolicy`，现由
+  `src/core/locale/policy.js` 的 `createLocalePolicyResolver({ regionMappings })` 提供，
+  返回 `(profile, overrides) => policy`，可直接注入 `runCli(['plan'], deps).resolveLocalePolicy`。
+  返回对象严格是 `assertPolicy` 要求的固定五键
+  `language_tag / guideline_id / calendar_id / unit_system / locale_source`。
+- **零兜底定案不变**：`rr plan` 默认 `deps` 仍不含该端口，缺端口即 `ERR_CLI_PORT` / exit 3；
+  T-032 不自动装配、不内置任何真实区域映射（`data/region/` 归 T-033）。
+- `OVERRIDE_KEYS`（`lang/guideline/calendar/country`）与 `COMMANDS` 七条 P1 快照**一字未改**。
+  核心域虽支持 `units` 显式覆盖（FR-046），CLI 尚未暴露该键，接线缺口登记在
+  `src/core/locale/README.md §7.5`，不擅自扩 P1 配置键集。
+- 来源枚举仍为 `user / auto:nationality / auto:residence / auto:fallback`，
+  与 `plan.js` / `validate.js` / `core/planner/plan.js` 逐字一致，拒绝静默推断。
+- 本追加不改任何 P0 基线 / `ac-*.md` / `tasks.md` 勾选项，不把 P1 门禁 `BLOCKED` 改写为通过；
+  `AC-16` 仍 RED（联网交节下载与真实区域映射分别待 T-014/T-042 与 T-033）。
+
+---
+
+## 11. T-033 口径订正（示例区域映射表已提供，仍未自动接线）
+
+> 本节由 T-033 追加；本任务**未修改 `src/cli/` 任何一行实现代码**。
+
+- §10 中「真实区域映射待 T-033」现已落地：`data/region/{mappings,schema}.json` +
+  `src/core/guideline/region.js` 提供 `loadRegionMappings(fsPort)` 与
+  `createLocalePolicyResolverFromFs(fsPort)`，后者可直接产出 §4 表中的
+  `resolveLocalePolicy` 端口。**仍须宿主显式注入 `deps`**，
+  `rr plan` 默认缺端口即 `ERR_CLI_PORT`（零兜底定案不变）。
+- 映射表是**最小示例集**（`CN` / `US` + 中国地区级 `HK` / `MO` / `TW`），
+  系数自撰中立、`review_status=ai-candidate-unreviewed`，**不是**真实指南适用性判定；
+  未登记区域一律回退中立通用基线。
+- `OVERRIDE_KEYS` 仍是 `lang/guideline/calendar/country`，`units` 的核心域能力与
+  CLI 接线缺口不变；`ci.yml` 门禁接入留 T-042。
+- 本追加不改任何 P0 基线 / `ac-*.md` / `tasks.md` 勾选项，不把 P1 门禁 `BLOCKED` 改写为通过。
+
+---
+
+## 12. T-034 口径订正（可选增强开关未接入 CLI）
+
+> 本节由 T-034 追加；本任务**未修改 `src/cli/` 任何一行实现代码**。
+
+- `src/core/render/enhance.js` 提供 `parseEnhanceConfig()` / `resolveEnhanceDecision()` /
+  `enhanceRenderedText()` / `createEnhanceGate()`：**默认关闭**、启用需**逐次显式同意并明确范围**、
+  不可用 / 断网**自动降级为规则 / 模板引擎**（FR-051 / AC-17 / E-16）。
+- 配置开关是**核心域纯数据契约**，不是 CLI 参数：`COMMAND_OPTIONS` / `FLAG_KEYS` /
+  `OVERRIDE_KEYS` 均未新增键，`runCli` 默认 deps 不含增强端口，也不读取任何
+  `rr.enhance.json`。与 §10 / §11 一致，**仍须宿主显式注入**（零兜底定案不变）。
+- 本仓库**运行期不调用在线翻译或远端服务**：适配器契约是同步本地纯函数，
+  异步 / 远端结果一律被拒并降级；T-021 `scanSources()` 对 `src/core` + `src/cli`
+  零外部出口的取证口径不变。
+- `render()` 三参签名与输出字节未变；`AC-17` 仍 **RED**，合规文档归 T-041、
+  CI 门禁接线归 T-042。本追加不改任何 P0 基线 / `ac-*.md` / `tasks.md` 勾选项，
+  不把 P1 门禁 `BLOCKED` 改写为通过。
+
+---
+
+## 13. T-035 口径订正（数据源端口未接入 CLI）
+
+> 本节由 T-035 追加；本任务**未修改 `src/cli/` 任何一行实现代码**。
+
+- `src/core/source/` 提供 `loadSourceCatalog(fsPort)` / `loadDataSource(fsPort, id)` /
+  `createDataSourcePort(fsPort)`；`data/source/` 是**元数据目录**，不内置任何真实第三方数据本体。
+- 四条外部 / 用户源全部 `review_status = ai-candidate-unreviewed` + `bundled = false`，
+  加载器一律拒绝（`ERR_SOURCE_REVIEW` / `ERR_SOURCE_BUNDLED`）；唯一可加载的是完全虚构的
+  `synthetic-demo`。许可声明、版本号、来源 URL 均为**未审校的占位声明**，不代表已通过许可审计。
+- 端口**仍须宿主显式注入**：`runCli` 默认 deps 不含数据源端口，`COMMAND_OPTIONS` /
+  `FLAG_KEYS` / `OVERRIDE_KEYS` 均未新增键（零兜底定案不变）。
+- `THIRD_PARTY_NOTICES.md` 与社区规范文件归 T-040 / T-041、CI 许可扫描门禁归 T-042；
+  `AC-13` / `AC-18` 仍 **RED**。本追加不改任何 P0 基线 / `ac-*.md` / `tasks.md` 勾选项，
+  不把 P1 门禁 `BLOCKED` 改写为通过。
+
+---
+
+## 14. T-036 口径订正（多语言快照未接入 CLI）
+
+> 本节由 T-036 追加；本任务**未修改 `src/cli/` 任何一行实现代码**。
+
+- `tests/snapshots/i18n/` 存放七语言 + `xx-Zzzz` 回退共 8 份真实 `render()` 输出快照，
+  配套 `manifest.json` / `glossary.json` / `fixture.mjs` / `generate.mjs`。这是**测试层取证产物**，
+  不是新的 CLI 命令或运行时输出路径（FR-043 / FR-044 / AC-15 / SC-011 / E-12）。
+- 取证采用**同一 plan 对象 + 同一 intlFormatter、只换语言包**的严格 FR-044 口径；
+  `runCli` 默认 deps、`COMMAND_OPTIONS` / `FLAG_KEYS` / `OVERRIDE_KEYS` 一字未改，
+  `COMMANDS` 七条 P1 快照与 `P2_COMMANDS = ['serve-mcp','locales']` 保持不变；
+  `feedback` 仍越界。生成器默认只读 `--check`，运行期不联网、不调用翻译或 LLM。
+- 快照里的四餐克数来自渲染层 `sections` 的**合成夹具**（`sections_source =
+  synthetic-render-fixture`、`product_e2e = unwired`），不代表 T-013 / T-016 端到端接线，
+  **AC-03 与 AC-15 仍 RED**；T-016 零内置食材表、T-019 零兜底定案均不变。
+- 中文汉字 GB 18030-2022 实现级别 1 的独立 CI 静态校验脚本归 T-045 `encoding-check`，
+  CI 门禁接线归 T-042；本追加不改任何 P0 基线 / `ac-*.md` / `tasks.md` 勾选项，
+  不把 P1 门禁 `BLOCKED` 改写为通过。
+
+---
+
+## 15. T-037 口径订正（Phase 2 出口门禁未接入 CLI / CI）
+
+> 本节由 T-037 追加；本任务**未修改 `src/cli/` 任何一行实现代码**。
+
+- `tests/acceptance/gates/p2-gate.mjs` 是**测试层门禁取证器**，与既有 `p1-gate.mjs` 并列，
+  不是新的 CLI 命令、不是运行时输出路径，也不改变 `rr plan` / `rr acceptance` 的行为。
+  单一实现两入口：`node tests/acceptance/gates/p2-gate.mjs` 输出纯 ASCII CI 报告（exit 0/1/2），
+  `runP2Gate()` / `collectP2Evidence()` / `evaluateP2Gate()` 供单测与后续 T-042 接线复用。
+- 门禁真实调用 T-030～T-036 的能力取证 AC-14～17：MCP 工具脱敏、七语言键集、
+  区域来源标注、断网降级、数据源合规、八份多语言快照；十项门禁全部通过，
+  但四条 AC 无一 `E2E_PASS`（`CORE_ONLY=3` / `GAP=1`），结论如实 `verdict=BLOCKED` / exit 2。
+- `runCli` 默认 deps、`COMMAND_OPTIONS` / `FLAG_KEYS` / `OVERRIDE_KEYS` 一字未改；
+  `COMMANDS` 七条 P1 快照与 `P2_COMMANDS = ['serve-mcp','locales']` 不变，`feedback` 仍越界。
+  门禁零磁盘写入、零子进程、零第三方依赖，唯一文件读取是 `node:fs` 三项只读 API
+  与注入的 `fsPort`；真实数据令牌正则动态取自 `ci.yml`，不复制字面量。
+- `.github/workflows/ci.yml` **仍未接入** `p2-gate` / lint / coverage / 语言包键集 /
+  区域来源 / 断网 / 许可扫描（归 T-042）。`reports/t037-p2-gate.md` 是本机可复跑的
+  CI 风格报告，**不代表 CI 已绿**。AC-14～17 仍 **RED**；合规文档归 T-041、
+  编码静态校验归 T-045、交节联网与缓存路径张力归 T-014 人工裁决。
+- 本追加不改任何 P0 基线 / `ac-*.md` / `tasks.md` 勾选项，不把 P1 门禁 `BLOCKED`
+  改写为通过；`ISSUE-20261112-T037-GATE` 已登记 T-037「要求全绿」与基线 RED 的
+  结构性矛盾，待用户书面裁决。
+
+---
+
+## 16. T-042 口径订正（全量 CI 门禁与静态扫描）
+
+> 本节由 T-042 追加；**未修改 `src/cli/` 任何一行实现代码**，§15 保留 T-037 时点快照。
+
+- `tasks.md T-042` 明确把「`.github/workflows/ci.yml` 完整版」列为本任务产出，故按 P0
+  任务表自身规划把 T-006 六 job 骨架升级为**九 job 完整版**：保留 `spec-consistency` /
+  `unit` / `acceptance` / `lint-typecheck` / `privacy-scan` / `matrix` 六个骨架 job 名，
+  新增 `license-scan` / `community-files` / `offline` 三个实际执行门禁。
+- 新接入的十项命令：`npm run spec-check`、`npm test`、`node scripts/coverage.mjs --json`、
+  `npm run acceptance`、`node scripts/lint.mjs`、`node scripts/i18n-keys.mjs`、
+  `node scripts/privacy-scan.mjs`、`node scripts/license-scan.mjs`、
+  `node scripts/community-files.mjs`、`node tests/acceptance/offline-integration.mjs`。
+- `scripts/scan-common.mjs` 是四个扫描器的唯一公共只读层；四个脚本合计 21 项静态检查，
+  均可 `node scripts/<name>.mjs` 独立复跑，输出纯 ASCII `key=value` 且 `status=` 收尾。
+  令牌规则仍以 `ci.yml` 头部声明为唯一权威，脚本反向读取、零复制字面量。
+- **CI 绿不等于 AC 转绿**：`acceptance` job 仍以 19/19 全红基线为通过条件，不接全绿开关、
+  不跳过、不弱化任何场景；`p1-gate` / `p2-gate` 仍 `BLOCKED` / exit 2，是取证器不是出口
+  裁决器，不接入 required jobs。T-044 `polyglot-gate` / T-045 `encoding-check` 只登记不接线，
+  AC-13 / AC-17 / AC-18 / AC-19 转绿归 T-046 人工裁决。
+- 按 T-042 口径订正 `tests/unit/community-files.test.js` / `compliance-files.test.js` 的
+  「不得提前接线」历史阶段断言（改为更严的正向取证），并订正 `p2-gate.mjs` 的两处 gap
+  时点文字；**判定逻辑与 `verdict=BLOCKED` 一字未放宽**。
+- `runCli` 默认 deps、`COMMANDS` 七条 P1 快照、`P2_COMMANDS`、`FLAG_KEYS`、
+  `OVERRIDE_KEYS` 一律未改；`src/cli/` 仍零 `node:` 导入、端口工厂仅显式注入、
+  `rr plan` 零兜底不变。19/19 AC 仍 RED、`tasks.md` 仍 `39 [ ] / 0 [x]`。
+
+## 17. T-043 口径订正（实现语言与 Corresponding Source 门禁）
+
+> 本节由 T-043 追加；**未修改 `src/cli/` 任何一行实现代码**，§15/§16 保留各自时点快照。
+
+- T-043 按 `tasks.md` 产出 `scripts/language-source.mjs` 静态取证器与 `docs/release-audit.md`
+  发布审计记录；`ci.yml` 九 job 完整版未被改动，新取证器**不接入 CI 必跑门禁**
+  （与 p1-gate / p2-gate 取证器同口径，AC-19 未转绿前不接 required jobs）。
+- 取证器按文件头魔数识别 ELF / Mach-O / PE / WASM / JVM class，并校验现行
+  ISO/IEC 22275:2018 引用、人类可读源码、单一实现语言、产物一一对应规则、
+  三平台矩阵契约、贡献者零真实数据、发布审计记录共 8 项；判定抽成可负向注入的纯函数。
+- **如实登记的边界**：v1 `release_artifacts=0`（尚未发布、不发 Release），
+  一一对应仅是空集上的规则可证（vacuous truth），**不构成端到端证据**；
+  `ci.yml` matrix 为 3 OS × 3 Node = 9 格，本机仅 macOS 1 格可实测，
+  GitHub Actions 未联网核实；`verdict=STATIC_ONLY` 不等于 AC-19 通过。
+- `src/.DS_Store` 是未被 Git 跟踪、被 `.gitignore` 忽略的 macOS 元数据，
+  显式排除在「机器码实现主体」之外并如实登记；不得误判为假红或假绿。
+- `runCli` 默认 deps、`COMMANDS` 七条 P1 快照、`P2_COMMANDS`、`FLAG_KEYS`、
+  `OVERRIDE_KEYS` 一律未改；`src/cli/` 仍零 `node:` 导入、端口工厂仅显式注入、
+  `rr plan` 零兜底不变。19/19 AC 仍 RED、`tasks.md` 仍 `39 [ ] / 0 [x]`，
+  AC-19 转绿归 T-046 人工裁决，真实 Release 归档归 T-052。

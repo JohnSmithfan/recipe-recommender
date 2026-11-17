@@ -1,0 +1,65 @@
+# [AIGC] T-040 · RR-T040-20261113-0001 · 待人工审查（P-10） · SPDX-License-Identifier: GPL-3.0-only
+# 本仓库采用 GPL-3.0-only；需求提案必须关联 FR / AC，遵循 P-01 Spec first 与 P-03 可追溯。
+name: 需求提案 / Feature request
+description: 提议新的行为或能力；必须给出 Given/When/Then 场景并关联 FR-xxx / AC-xx。
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        按 `constitution.md` P-01，行为变更须先改 `SPEC.md`（含版本号）再改实现；
+        按 P-02，实现前须先有确认过红色的验收场景。请勿在提案中写入实现方式、
+        框架、目录或接口签名（P-04，那些属于 `plan.md`）。
+  - type: input
+    id: fr_id
+    attributes:
+      label: 关联 FR-xxx 编号
+      description: 已有 FR 编号，或拟新增的 FR-xxx（需同步追溯矩阵）。
+      placeholder: FR-054
+    validations:
+      required: true
+  - type: input
+    id: ac_id
+    attributes:
+      label: 关联 AC-xx 场景
+      description: 已有 AC 编号，或拟新增的 AC-xx（需先登记红态基线）。
+      placeholder: AC-20
+    validations:
+      required: true
+  - type: textarea
+    id: scenario
+    attributes:
+      label: Given / When / Then 场景
+      description: 逐字写出场景，不得跳过或弱化任何一条 Then（P-09 / RK-03）。
+      placeholder: |
+        Given ...
+        When  ...
+        Then  ...
+        And   ...
+    validations:
+      required: true
+  - type: textarea
+    id: rationale
+    attributes:
+      label: 动机与影响面
+      description: 为什么需要、影响哪些已有 FR / AC / SC、是否需要新数据源或许可审计。
+    validations:
+      required: true
+  - type: dropdown
+    id: privacy
+    attributes:
+      label: 是否涉及个人数据或外部服务
+      options:
+        - 否，纯本地且使用完全虚构示例
+        - 是，需要逐次显式同意与合规审查（P-13 / P-15）
+    validations:
+      required: true
+  - type: checkboxes
+    id: review
+    attributes:
+      label: 提交前确认
+      options:
+        - label: 本提案只描述「做什么 / 怎样算完成」，未夹带实现方案。
+          required: true
+        - label: 本提案的 [AIGC] 内容已经人工审查（P-10）。
+          required: true

@@ -1,0 +1,162 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# [AIGC] T-006 骨架 + T-042 全量门禁 · 审计追踪 ID: RR-T006-20261107-0001 / RR-T042-20261113-0001 · 待人工审查（P-10）
+#
+# ★ CI 绿不等于验收通过 ★
+# 本 workflow 的「CI 绿」只表示：骨架可运行、19/19 红态基线完整、全部静态门禁零命中、
+# 单测 / lint / 规格一致性 / 覆盖率 / 离线集成可复跑通过。它不代表 AC 转绿，
+# 也不代表 M3 / M4 出口达成（P-02 / AC-14 / tasks.md §5）。
+# `acceptance` job 仍以「19/19 全红基线完整」为通过条件：不接全绿开关、不跳过、
+# 不弱化任何 AC 场景（P-09 / RK-03）。
+# P1 / P2 出口取证器 p1-gate 与 p2-gate 仍 verdict=BLOCKED / exit 2，
+# 是取证器而不是出口裁决器，故不接入 required jobs；出口裁决归 T-022 四选一与 T-046。
+#
+# 门禁接线（T-042）：spec-consistency / unit(+coverage) / acceptance /
+# lint-typecheck(+i18n) / privacy-scan / license-scan / community-files / offline /
+# matrix 共 9 个 job。零第三方依赖：不要 npm install / npm ci（无 lock 文件，也不需要）。
+# 仍待后续任务：T-044 polyglot-gate（默认关闭、仅登记，不引入第二实现语言工具链）、
+# T-045 encoding-check（中文 GB 18030-2022 实现级别 1 静态校验）、
+# T-046 §10 100% + AC-13 / AC-18 / AC-19 转绿。
+# 说明：plan.md §11 的 tsc --checkJs --noEmit 需外部 TypeScript 工具链，与零第三方依赖
+# 冲突；scripts/lint.mjs 以 node --check + JSDoc 契约静态校验替代并显式登记不等价，
+# 本 workflow 不把「完整类型检查通过」记为已达成（P-01 / P-04，待人工裁决）。
+#
+# 唯一权威令牌规则（FR-053 / P-14）：const TOKENS = /73\.45|1598|23\.3%|52\.6%|53\.49|2\.86|20\.1%/;
+# 本行是声明性元数据，由 scripts/privacy-scan.mjs 的 tokenRule()、
+# tests/acceptance/offline-integration.mjs、p2-gate 取证器与 T-040 / T-041 单测动态读取；
+# 任何其它文件都不得复制该字面量，否则会被全仓扫描自命中。
+# 本 workflow 自身含规则声明（检测规则），扫描器一律排除自身；它不含任何个人数据。
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  spec-consistency:
+    name: spec-consistency (FR-038 / SC-001)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: 规格一致性与追溯矩阵
+        shell: bash
+        run: npm run spec-check
+
+  unit:
+    name: unit (node:test + 覆盖率阈值 SC-002)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: 单元测试
+        shell: bash
+        run: npm test
+      - name: 核心逻辑覆盖率三列阈值（SC-002）
+        shell: bash
+        run: node scripts/coverage.mjs --json
+
+  acceptance:
+    name: acceptance (19/19 RED 基线为通过条件)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: AC 红态基线（全红为通过条件）
+        shell: bash
+        run: npm run acceptance
+
+  lint-typecheck:
+    name: lint-typecheck (lint + 语言包键集 / 区域 / 免责快照)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: 零依赖 lint / 语法 / 架构边界 / JSDoc 契约
+        shell: bash
+        run: node scripts/lint.mjs
+      - name: 语言包键集 / 区域来源 / 免责快照
+        shell: bash
+        run: node scripts/i18n-keys.mjs
+
+  privacy-scan:
+    name: privacy-scan (P-06 / P-14 / P-15 / FR-053)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: 真实数据 / diet-plan / 发布字段 / 网络出口 / 日志脱敏
+        shell: bash
+        run: node scripts/privacy-scan.mjs
+
+  license-scan:
+    name: license-scan (P-07 / P-16 / AC-13 / AC-18)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: GPL-3.0 / NOTICES / Corresponding Source / 版权原文
+        shell: bash
+        run: node scripts/license-scan.mjs
+
+  community-files:
+    name: community-files (FR-036 / SC-007)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: SPEC.md 第 10 节必需文件与模板
+        shell: bash
+        run: node scripts/community-files.mjs
+
+  offline:
+    name: offline (AC-12 / AC-17 / SC-008)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: 断网 / LLM 关闭 / 零对外请求双模式集成
+        shell: bash
+        run: node tests/acceptance/offline-integration.mjs
+
+  matrix:
+    name: matrix (${{ matrix.os }} / Node ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [20, 22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: 同一组 AC 跨平台一致性（P0：全红）
+        shell: bash
+        run: |
+          npm test
+          npm run acceptance
+          npm run spec-check
+          node scripts/i18n-keys.mjs

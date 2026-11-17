@@ -169,7 +169,7 @@
 
 **可选次级适配层**（后续阶段，不进 v1）：Agent Skill 包、Obsidian / VS Code 扩展、静态站点导出。
 
-⚠️ **待用户确认**：目标宿主平台（MCP / Skill / 编辑器扩展 / Web）、实现语言（TypeScript / Python）、许可证（MIT / Apache-2.0 / GPL-3.0）。这些将作为 `SPEC.md` 的 `[NEEDS CLARIFICATION]` 项，不在此阶段臆定。
+✅ **已定案（M1 Clarify 全部关闭，CL-01～CL-11）**：目标宿主平台 = 本地 CLI + 零依赖 **MCP stdio** JSON-RPC 层（v1；Skill / 编辑器扩展 / Web 属可选次级适配层，不进 v1）；实现语言 = **ECMAScript / ISO/IEC 22275:2018**（纯 ESM JavaScript + Node ≥20，单一主实现语言，见 ADR-002 / ADR-003 方案 A）；许可证 = **GPL-3.0-only**（`LICENSE` 全文已随仓库分发）。以上均已在 `SPEC.md` / `constitution.md` / `plan.md` 基线化。本段在 M0 阶段曾把这三项列为待确认，按 P-01 于 T-040 产出 `CHANGELOG.md` 时一并订正；历史取舍理由保留在 `docs/decisions.md`。
 
 ---
 

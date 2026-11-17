@@ -1,0 +1,11 @@
+# [AIGC] T-040 · RR-T040-20261113-0001 · 待人工审查（P-10） · SPDX-License-Identifier: GPL-3.0-only
+# 本仓库采用 GPL-3.0-only；下列 URL 均为虚构占位（example.invalid），
+# 不指向任何真实仓库、组织或个人账号，启用状态需维护者人工确认（P-10）。
+blank_issues_enabled: false
+contact_links:
+  - name: 用法提问与方案讨论（占位，待维护者启用 Discussions）
+    url: https://example.invalid/recipe-recommender/discussions
+    about: 讨论用法、规格理解与方案取舍；不要在此提交缺陷或安全漏洞细节。
+  - name: 安全漏洞私有报告（占位，见 SECURITY.md）
+    url: https://example.invalid/recipe-recommender/security/advisories/new
+    about: 疑似安全漏洞请使用私有渠道，不要在公开 Issue 中披露复现细节。

@@ -1,0 +1,35 @@
+{
+  "CN": {
+    "guideline_id": "region-cn-example",
+    "calendar_id": "solar-terms",
+    "unit_system": "metric",
+    "language_tag": "zh-Hans"
+  },
+  "US": {
+    "guideline_id": "region-us-example",
+    "calendar_id": "gregorian-season",
+    "unit_system": "us-customary",
+    "language_tag": "en"
+  },
+  "HK": {
+    "guideline_id": "region-cn-example",
+    "calendar_id": "solar-terms",
+    "unit_system": "metric",
+    "language_tag": "zh-Hans",
+    "region_level": "subnational"
+  },
+  "MO": {
+    "guideline_id": "region-cn-example",
+    "calendar_id": "solar-terms",
+    "unit_system": "metric",
+    "language_tag": "zh-Hans",
+    "region_level": "subnational"
+  },
+  "TW": {
+    "guideline_id": "region-cn-example",
+    "calendar_id": "solar-terms",
+    "unit_system": "metric",
+    "language_tag": "zh-Hans",
+    "region_level": "subnational"
+  }
+}

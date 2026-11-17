@@ -1,0 +1,634 @@
+{
+  "schema_version": "1.0.0",
+  "review_status": "ai-candidate-unreviewed",
+  "fictional": true,
+  "source": "locales/la/strings.json",
+  "key_count": 71,
+  "paired_count": 71,
+  "entries": [
+    {
+      "key": "plan.marker.aigc",
+      "norm_name": "Ab intelligentia artificiali adiutum",
+      "source_form": "AI / AIGC",
+      "pair_form": "Ab intelligentia artificiali adiutum (AI / AIGC)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "plan.notice.disclaimer",
+      "norm_name": "Hoc consilium exempli gratia est, non praeceptum medicum",
+      "source_form": "disclaimer / demo only",
+      "pair_form": "Hoc consilium exempli gratia est, non praeceptum medicum (disclaimer / demo only)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "plan.notice.estimated",
+      "norm_name": "Numeri in tabulis aestimati sunt",
+      "source_form": "estimated / approximatum",
+      "pair_form": "Numeri in tabulis aestimati sunt (estimated / approximatum)",
+      "tail": "; pondera portiones",
+      "paired": true
+    },
+    {
+      "key": "render.col.end_date",
+      "norm_name": "Dies finalis",
+      "source_form": "end_date",
+      "pair_form": "Dies finalis (end_date)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.col.field",
+      "norm_name": "Campus",
+      "source_form": "field",
+      "pair_form": "Campus (field)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.col.file_name",
+      "norm_name": "Nomen fasciculi",
+      "source_form": "file_name",
+      "pair_form": "Nomen fasciculi (file_name)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.col.key",
+      "norm_name": "Clavis",
+      "source_form": "key",
+      "pair_form": "Clavis (key)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.col.level",
+      "norm_name": "Gradus",
+      "source_form": "level",
+      "pair_form": "Gradus (level)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.col.max",
+      "norm_name": "Maximum",
+      "source_form": "max",
+      "pair_form": "Maximum (max)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.col.min",
+      "norm_name": "Minimum",
+      "source_form": "min",
+      "pair_form": "Minimum (min)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.col.period_id",
+      "norm_name": "Index periodi",
+      "source_form": "period_id",
+      "pair_form": "Index periodi (period_id)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.col.plan_date",
+      "norm_name": "Dies consilii",
+      "source_form": "plan_date",
+      "pair_form": "Dies consilii (plan_date)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.col.start_date",
+      "norm_name": "Dies initialis",
+      "source_form": "start_date",
+      "pair_form": "Dies initialis (start_date)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.col.state",
+      "norm_name": "Status",
+      "source_form": "state",
+      "pair_form": "Status (state)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.col.unit",
+      "norm_name": "Unitas",
+      "source_form": "unit",
+      "pair_form": "Unitas (unit)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.col.value",
+      "norm_name": "Valor",
+      "source_form": "value",
+      "pair_form": "Valor (value)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.field.added_sugar_g",
+      "norm_name": "Saccharum additum",
+      "source_form": "added_sugar_g",
+      "pair_form": "Saccharum additum (added_sugar_g)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.field.carb_g",
+      "norm_name": "Carbohydrata",
+      "source_form": "carb_g",
+      "pair_form": "Carbohydrata (carb_g)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.field.energy_kcal",
+      "norm_name": "Vis energetica",
+      "source_form": "energy_kcal, kcal",
+      "pair_form": "Vis energetica (energy_kcal, kcal)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.field.fat_g",
+      "norm_name": "Adeps",
+      "source_form": "fat_g",
+      "pair_form": "Adeps (fat_g)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.field.fiber_g",
+      "norm_name": "Fibra alimentaria",
+      "source_form": "fiber_g",
+      "pair_form": "Fibra alimentaria (fiber_g)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.field.oil_g",
+      "norm_name": "Oleum coquinarium",
+      "source_form": "oil_g",
+      "pair_form": "Oleum coquinarium (oil_g)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.field.protein_g",
+      "norm_name": "Proteinum",
+      "source_form": "protein_g",
+      "pair_form": "Proteinum (protein_g)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.field.salt_g",
+      "norm_name": "Sal",
+      "source_form": "salt_g",
+      "pair_form": "Sal (salt_g)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.field.water_ml",
+      "norm_name": "Aqua",
+      "source_form": "water_ml",
+      "pair_form": "Aqua (water_ml)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.guardrail.energy_floor_kcal",
+      "norm_name": "Limes energiae inferior",
+      "source_form": "energy_floor_kcal",
+      "pair_form": "Limes energiae inferior (energy_floor_kcal)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.guardrail.protein_floor_g",
+      "norm_name": "Limes proteinorum inferior",
+      "source_form": "protein_floor_g",
+      "pair_form": "Limes proteinorum inferior (protein_floor_g)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.link.children",
+      "norm_name": "Filii",
+      "source_form": "children",
+      "pair_form": "Filii (children)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.link.none",
+      "norm_name": "Nullus",
+      "source_form": "none",
+      "pair_form": "Nullus (none)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.link.parent",
+      "norm_name": "Parens",
+      "source_form": "parent",
+      "pair_form": "Parens (parent)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.link.references",
+      "norm_name": "Relata",
+      "source_form": "references",
+      "pair_form": "Relata (references)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.marker.fallback",
+      "norm_name": "Subsidium",
+      "source_form": "fallback",
+      "pair_form": "Subsidium (fallback)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.marker.untranslated",
+      "norm_name": "Non versum",
+      "source_form": "untranslated",
+      "pair_form": "Non versum (untranslated)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.meta.active_term_id",
+      "norm_name": "Terminus solaris praesens",
+      "source_form": "active_term_id",
+      "pair_form": "Terminus solaris praesens (active_term_id)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.meta.cache_id",
+      "norm_name": "Index cellae",
+      "source_form": "cache_id",
+      "pair_form": "Index cellae (cache_id)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.meta.calendar_status",
+      "norm_name": "Status calendarii",
+      "source_form": "calendar_status",
+      "pair_form": "Status calendarii (calendar_status)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.meta.days_count",
+      "norm_name": "Numerus dierum",
+      "source_form": "days_count",
+      "pair_form": "Numerus dierum (days_count)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.meta.execution_window",
+      "norm_name": "Fenest executionis",
+      "source_form": "execution_window",
+      "pair_form": "Fenest executionis (execution_window)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.meta.file_name",
+      "norm_name": "Nomen fasciculi",
+      "source_form": "file_name",
+      "pair_form": "Nomen fasciculi (file_name)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.meta.generated_at",
+      "norm_name": "Tempus generationis",
+      "source_form": "generated_at",
+      "pair_form": "Tempus generationis (generated_at)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.meta.generated_date",
+      "norm_name": "Dies generationis",
+      "source_form": "generated_date",
+      "pair_form": "Dies generationis (generated_date)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.meta.guideline_id",
+      "norm_name": "Index normae",
+      "source_form": "guideline_id",
+      "pair_form": "Index normae (guideline_id)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.meta.language_tag",
+      "norm_name": "Nota linguae",
+      "source_form": "language_tag, BCP 47",
+      "pair_form": "Nota linguae (language_tag, BCP 47)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.meta.level",
+      "norm_name": "Gradus",
+      "source_form": "level",
+      "pair_form": "Gradus (level)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.meta.locale_source",
+      "norm_name": "Fons locale",
+      "source_form": "locale_source",
+      "pair_form": "Fons locale (locale_source)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.meta.period_id",
+      "norm_name": "Index periodi",
+      "source_form": "period_id",
+      "pair_form": "Index periodi (period_id)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.meta.run_date",
+      "norm_name": "Dies executionis",
+      "source_form": "run_date",
+      "pair_form": "Dies executionis (run_date)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.meta.term_id",
+      "norm_name": "Index termini solaris",
+      "source_form": "term_id",
+      "pair_form": "Index termini solaris (term_id)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.meta.trigger",
+      "norm_name": "Impulsus",
+      "source_form": "trigger",
+      "pair_form": "Impulsus (trigger)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.section.calendar",
+      "norm_name": "Tempestas et calendarium",
+      "source_form": "calendar",
+      "pair_form": "Tempestas et calendarium (calendar)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.section.canonical_data",
+      "norm_name": "Campus datorum canonicorum",
+      "source_form": "rr-data / canonical_data",
+      "pair_form": "Campus datorum canonicorum (rr-data / canonical_data)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.section.days",
+      "norm_name": "Ordo diurnus",
+      "source_form": "days",
+      "pair_form": "Ordo diurnus (days)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.section.guardrails",
+      "norm_name": "Saepimenta severa",
+      "source_form": "guardrails",
+      "pair_form": "Saepimenta severa (guardrails)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.section.links",
+      "norm_name": "Nexus parentis et filiorum",
+      "source_form": "links",
+      "pair_form": "Nexus parentis et filiorum (links)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.section.metadata",
+      "norm_name": "Metadatarum capitis",
+      "source_form": "metadata",
+      "pair_form": "Metadatarum capitis (metadata)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.section.notices",
+      "norm_name": "Notae et signa",
+      "source_form": "notices",
+      "pair_form": "Notae et signa (notices)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.section.prescription",
+      "norm_name": "Praescriptum nutritionis",
+      "source_form": "prescription",
+      "pair_form": "Praescriptum nutritionis (prescription)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.section.versions",
+      "norm_name": "Versiones datorum",
+      "source_form": "versions",
+      "pair_form": "Versiones datorum (versions)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.title.day",
+      "norm_name": "Consilium diurnum",
+      "source_form": "day plan",
+      "pair_form": "Consilium diurnum (day plan)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.title.month",
+      "norm_name": "Consilium menstruum",
+      "source_form": "month plan",
+      "pair_form": "Consilium menstruum (month plan)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.title.season",
+      "norm_name": "Consilium tempestatis",
+      "source_form": "season plan",
+      "pair_form": "Consilium tempestatis (season plan)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.title.week",
+      "norm_name": "Consilium hebdomadale",
+      "source_form": "week plan",
+      "pair_form": "Consilium hebdomadale (week plan)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.title.year",
+      "norm_name": "Consilium annuum",
+      "source_form": "year plan",
+      "pair_form": "Consilium annuum (year plan)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.unit.g",
+      "norm_name": "g",
+      "source_form": "gramma",
+      "pair_form": "g (gramma)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.unit.kcal",
+      "norm_name": "kcal",
+      "source_form": "caloria maior",
+      "pair_form": "kcal (caloria maior)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.unit.ml",
+      "norm_name": "ml",
+      "source_form": "millilitrum",
+      "pair_form": "ml (millilitrum)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.version.body",
+      "norm_name": "Versio datorum corporis",
+      "source_form": "body",
+      "pair_form": "Versio datorum corporis (body)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.version.loc",
+      "norm_name": "Versio normae loci",
+      "source_form": "loc",
+      "pair_form": "Versio normae loci (loc)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.version.rule",
+      "norm_name": "Versio regularum",
+      "source_form": "rule",
+      "pair_form": "Versio regularum (rule)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.version.rx",
+      "norm_name": "Versio praescripti",
+      "source_form": "rx",
+      "pair_form": "Versio praescripti (rx)",
+      "tail": "",
+      "paired": true
+    },
+    {
+      "key": "render.version.st",
+      "norm_name": "Versio terminorum solarium",
+      "source_form": "st",
+      "pair_form": "Versio terminorum solarium (st)",
+      "tail": "",
+      "paired": true
+    }
+  ],
+  "modern_food_terms": [
+    {
+      "id": "food.fixture_grain_a",
+      "latin_name": "Frumentum fictum",
+      "source_form": "fixture-grain-a",
+      "pair_form": "Frumentum fictum (fixture-grain-a)",
+      "fictional": true,
+      "review_status": "ai-candidate-unreviewed",
+      "wired": false
+    },
+    {
+      "id": "food.fixture_legume_b",
+      "latin_name": "Legumen fictum",
+      "source_form": "fixture-legume-b",
+      "pair_form": "Legumen fictum (fixture-legume-b)",
+      "fictional": true,
+      "review_status": "ai-candidate-unreviewed",
+      "wired": false
+    },
+    {
+      "id": "food.fixture_leaf_c",
+      "latin_name": "Folium fictum",
+      "source_form": "fixture-leaf-c",
+      "pair_form": "Folium fictum (fixture-leaf-c)",
+      "fictional": true,
+      "review_status": "ai-candidate-unreviewed",
+      "wired": false
+    },
+    {
+      "id": "food.fixture_oil_d",
+      "latin_name": "Oleum fictum",
+      "source_form": "fixture-oil-d",
+      "pair_form": "Oleum fictum (fixture-oil-d)",
+      "fictional": true,
+      "review_status": "ai-candidate-unreviewed",
+      "wired": false
+    },
+    {
+      "id": "food.fixture_fruit_e",
+      "latin_name": "Fructus fictus",
+      "source_form": "fixture-fruit-e",
+      "pair_form": "Fructus fictus (fixture-fruit-e)",
+      "fictional": true,
+      "review_status": "ai-candidate-unreviewed",
+      "wired": false
+    },
+    {
+      "id": "food.fixture_protein_f",
+      "latin_name": "Proteinum fictum",
+      "source_form": "fixture-protein-f",
+      "pair_form": "Proteinum fictum (fixture-protein-f)",
+      "fictional": true,
+      "review_status": "ai-candidate-unreviewed",
+      "wired": false
+    }
+  ]
+}

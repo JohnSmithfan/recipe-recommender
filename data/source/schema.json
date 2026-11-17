@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0.0",
+  "catalog_file": "catalog.json",
+  "source": "synthetic-neutral-example",
+  "review_status": "ai-candidate-unreviewed",
+  "notice_key": "source.schema.notice",
+  "license_allowlist": ["Unlicense", "CC0-1.0", "user-owned", "synthetic-neutral-example"],
+  "kind_allowlist": ["recipe", "nutrition"],
+  "review_status_allowlist": ["approved", "ai-candidate-unreviewed", "rejected", "conflict"],
+  "license_expectations": {
+    "howtocook-recipes": "Unlicense",
+    "usda-fdc-nutrition": "CC0-1.0",
+    "cn-ingredient-subset": "CC0-1.0"
+  },
+  "source_keys": [
+    "id", "kind", "license", "version", "source_url", "review_status",
+    "bundled", "payload_path", "notice_key"
+  ],
+  "payload_keys": [
+    "id", "kind", "license", "version", "fictional", "notice_key", "records"
+  ],
+  "record_keys": [
+    "id", "name_key", "category_key", "energy_kcal_per_100g",
+    "protein_g_per_100g", "substitute_ids"
+  ],
+  "policy": {
+    "require_approved_review": true,
+    "require_bundled_payload": true,
+    "reject_unverified_license": true,
+    "require_https_source_url": true,
+    "forbid_query_fragment_userinfo": true,
+    "no_network_download": true
+  },
+  "bundled_sources": ["synthetic-demo"],
+  "external_candidates": [
+    "howtocook-recipes", "usda-fdc-nutrition", "cn-ingredient-subset", "user-defined"
+  ],
+  "coverage": "metadata-only"
+}
