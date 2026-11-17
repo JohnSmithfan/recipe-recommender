@@ -53,16 +53,16 @@
 
 **`verdict=STATIC_ONLY` 不等于 M4 出口达成，更不等于 AC-13/18/19 转绿。** 本取证器不接 CI 必跑门禁，只在 `ci.yml` 头部登记 T-046（与 T-043～T-045 同口径）。
 
-## 4.1 实现期修正（探针暴露的判据缺陷，不放宽判定）
-
-独立负向探针首轮在「置空 `SUPPORT.md`」注入时，除预期的 `spec10_required=fail` 外还出现 `machineMagicHits=7` 的**假阳性**：`machineMagicHits()` 原用 `magic.startsWith(head)` 反向匹配，空文件 `head=''` 时该式对每个魔数恒真。按铁律「探针自身问题只修探针、取证判据缺陷只修判据、判定不放宽」，删除反向匹配并加 `head.length < 4` 短路（魔数最长 4 字节，读 4 字节足够）；修正后空文件零命中、真实基线 `machineMagicHits=0`、13/13 单测仍绿。探针自身另一问题（`execFileSync` 遇 exit 1 抛错而未读 stdout）只修探针的返回值捕获。复跑 **8/8 PASS**、`[RESTORE-OK]`。
-
 ## 4. 判据复用与零复制
 
 - §10 必需清单：复用 `scan-common.mjs:spec10Required()` 动态解析，规格新增必需项而仓库未补齐会立即转红。
 - 令牌唯一权威：复用 `scan-common.mjs:tokenRule()` 从 `ci.yml` 头部读取，脚本不接触字面量、不复制。
 - 机器码魔数 / OS 元数据排除：复用 T-043 `language-source.mjs` 的 `MACHINE_MAGICS` 与 `isOsMetadata()`，不改判据。
 - 与 T-045 相同，判定逻辑抽成纯函数并支持 `break_<id>` 逐项负向注入；真阳性注入（`tokenHits` / `bundleHits` / `machineMagicHits` / `publishableState: true` / `acGreenCount > 0` / `spec10Missing` / `prereqMissing`）全部实测转红，证明非恒真、非恒假、不能假绿。
+
+## 4.1 实现期修正（探针暴露的判据缺陷，不放宽判定）
+
+独立负向探针首轮在「置空 `SUPPORT.md`」注入时，除预期的 `spec10_required=fail` 外还出现 `machineMagicHits=7` 的**假阳性**：`machineMagicHits()` 原用 `magic.startsWith(head)` 反向匹配，空文件 `head=''` 时该式对每个魔数恒真。按铁律「探针自身问题只修探针、取证判据缺陷只修判据、判定不放宽」，删除反向匹配并加 `head.length < 4` 短路（魔数最长 4 字节，读 4 字节足够）；修正后空文件零命中、真实基线 `machineMagicHits=0`、13/13 单测仍绿。探针自身另一问题（`execFileSync` 遇 exit 1 抛错而未读 stdout）只修探针的返回值捕获。复跑 **8/8 PASS**、`[RESTORE-OK]`。
 
 ## 5. 校验结果
 
@@ -82,7 +82,7 @@
 
 ## 6. 边界与未决裁决（AI 不自行处理）
 
-- 本任务**未 commit / 未 push**，停下等审查。提交需用户显式给出 `commit`。
+- 本报告落盘于提交前，记录当时「未 commit / 未 push」；经用户 `commit` 授权后 T-046 四文件已于本地提交 `c49d7dd`（`ahead 14`），**仍未 push**。本句保留落盘时点原貌，不改写历史。
 - AC-13 / AC-18 / AC-19 转绿归人工裁决 + T-052 实体归档；`tasks.md` T-046 不勾选，`tests/acceptance/ac-13.md` / `ac-18.md` / `ac-19.md` 不改状态（P0 基线）。
 - 新登记 `ISSUE-20261117-T046-M4-GATE`：AC 转绿的「可发布状态」前置与 M5 任务顺序矛盾，建议 A（T-052 后转绿）或 D（维持登记），B/C 须用户书面裁决（constitution §4）。
 - 既有 ISSUE（`ISSUE-20261109-T030-GATE`、`ISSUE-20261112-T037-GATE`、`ISSUE-20261113-T040-OVERLAP`、`ISSUE-20261113-T041-NOTICE-SCOPE`、`ISSUE-20261114-T042-COVERAGE-TIMEOUT`）、T-022 四选一、T-015 双张力、`README.md` 滞后文字与历史远端链接（P0）、`tsc --checkJs` 张力、AC-15 快照位，均待书面裁决。
